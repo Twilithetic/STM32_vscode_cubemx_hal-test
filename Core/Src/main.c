@@ -81,7 +81,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  LED_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -97,7 +97,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    LED_Blink();
+    //LED_Blink();
 
   }
   /* USER CODE END 3 */

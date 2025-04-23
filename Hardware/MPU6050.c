@@ -24,22 +24,45 @@ void MPU6050_Init(void)
     MPU6050_SDA_Set();
     MPU6050_SCL_Set();
 
+    // while (1)
+    // {
+    //     MPU6050_SCL_Set();
+    //     delay_us(1);
+    //     MPU6050_SCL_Clr(); 
+    //     delay_us(1);
+    // } // 273kHz
+
+    // while (1)
+    // {
+    //     MPU6050_SCL_Set();
+
+    //     MPU6050_SCL_Clr(); 
+
+    // } // 1.56mHz
+
+
 }
 
 /// @brief 在SCL 置1时 如果SDA从1到0 是开始时序（读取数据时 SCL同样SCL置1 但SDA不应该变化）
 /// @param  
 void MPU6050_Start(void){
     MPU6050_SDA_Set();
+    delay_us(1);
     MPU6050_SCL_Set();
-    MPU6050_SDA_Clr(); 
+    delay_us(1);
+    MPU6050_SDA_Clr();
+    delay_us(1); 
 }
 
 /// @brief 在SCL 置1时 如果SDA从0到1 是停止时序（读取数据时 SCL同样SCL置1 但SDA不应该变化）
 /// @param  
 void MPU6050_stop(void){
     MPU6050_SDA_Clr();
+    delay_us(1);
     MPU6050_SCL_Set();
+    delay_us(1);
     MPU6050_SDA_Set();
+    delay_us(1);
 }
 
 /// @brief 发送一个bit SCL置0时 放主机要发送的数据，SCL置1时 从机读取数据 从SDA上
@@ -50,6 +73,7 @@ void MPU6050_SendByte(uint8_t byte){
     {
         
         MPU6050_SCL_Clr();
+        delay_us(1);
         if (byte & 0x80)
         {
             MPU6050_SDA_Set();
@@ -58,8 +82,9 @@ void MPU6050_SendByte(uint8_t byte){
         {
             MPU6050_SDA_Clr();
         }
-        delay_us(10);
+        delay_us(1);
         MPU6050_SCL_Set(); // 此时从机 会读取SDA线上的电平来获取数据， 他们想两座离的很远的房子一样。
+        delay_us(1);
         byte <<= 1;
     }
     //MPU6050_SCL_Clr();
@@ -94,9 +119,12 @@ void MPU6050_SendAck(){
 /// @param  
 /// @return  如果确认收到了(此时AckBit == 0)，会返回True（stdbool.h提供），由于!AckBit
 bool MPU6050_ReceiveAck(void){
-    MPU6050_SDA_Set();// 释放SDA
     MPU6050_SCL_Clr();
+    delay_us(1);
+    MPU6050_SDA_Set();// 释放SDA
+    delay_us(1);
     MPU6050_SCL_Set();
+    delay_us(1);
     uint8_t AckBit = MPU6050_SDA_Read();
     
     return !AckBit;

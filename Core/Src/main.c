@@ -101,25 +101,31 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // MPU6050_Start();
-    // MPU6050_SendByte(0xD0);
-    for (uint32_t i = 0; i < 100; i++)
-    {
-      delay_us(10000);
-    }
-    Build_in_LED_Set();
-
-    for (uint32_t i = 0; i < 100; i++)
-    {
-      delay_us(10000);
-    }
-    Build_in_LED_Clr();
-
-    // if(MPU6050_ReceiveAck()){
-    //   Build_in_LED_Set();
+    // for (uint32_t i = 0; i < 100; i++)
+    // {
+    //   delay_us(10000);
     // }
-    // MPU6050_stop();
-    // HAL_Delay(1000);
+    // Build_in_LED_Set();
+
+    // for (uint32_t i = 0; i < 100; i++)
+    // {
+    //   delay_us(10000);
+    // }
+    // Build_in_LED_Clr();
+
+    // MPU6050_SCL_Set();
+    // delay_us(1);
+    // MPU6050_SCL_Clr(); 
+    // delay_us(1);
+
+
+    MPU6050_Start();
+    MPU6050_SendByte(0xD0);
+    if(MPU6050_ReceiveAck()){
+      Build_in_LED_Set();
+    }
+    //MPU6050_stop();
+    HAL_Delay(1000);
 
   }
   /* USER CODE END 3 */

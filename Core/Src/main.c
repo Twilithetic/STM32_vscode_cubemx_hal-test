@@ -18,11 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Build_in-Led.h"
+#include "MPU6050.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -82,10 +84,12 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
   LED_Init();
+  MPU6050_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -97,7 +101,25 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    LED_Blink();
+    // MPU6050_Start();
+    // MPU6050_SendByte(0xD0);
+    for (uint32_t i = 0; i < 100; i++)
+    {
+      delay_us(10000);
+    }
+    Build_in_LED_Set();
+
+    for (uint32_t i = 0; i < 100; i++)
+    {
+      delay_us(10000);
+    }
+    Build_in_LED_Clr();
+
+    // if(MPU6050_ReceiveAck()){
+    //   Build_in_LED_Set();
+    // }
+    // MPU6050_stop();
+    // HAL_Delay(1000);
 
   }
   /* USER CODE END 3 */

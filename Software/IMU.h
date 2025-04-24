@@ -10,3 +10,5 @@
 #endif // !IMU_H
 
 void IMU_Init();
+
+void IMU_test();

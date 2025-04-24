@@ -220,6 +220,8 @@ void MPU6050_SendAck_Done(){
 /// @brief 在SCL 置1时 如果SDA从0到1 是停止时序（读取数据时 SCL同样SCL置1 但SDA不应该变化）
 /// @param  
 void MPU6050_Stop(void){
+    MPU6050_SCL_Clr();
+    delay_us(1);
     MPU6050_SDA_Clr();
     delay_us(1);
     MPU6050_SCL_Set();

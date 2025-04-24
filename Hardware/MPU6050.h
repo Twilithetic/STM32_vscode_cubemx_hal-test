@@ -26,15 +26,21 @@ void MPU6050_Init(void);
 
 void MPU6050_Test_ack();
 
+void MPU6050_WriteReg(uint8_t RegAddress, uint8_t Data);
+
+uint8_t MPU6050_ReadReg(uint8_t RegAddress);
+
 void MPU6050_Start(void);
 
-void MPU6050_stop(void);
+void MPU6050_SendAck_Done();
+
+void MPU6050_Stop(void);
 
 void MPU6050_SendByte(uint8_t byte);
 
 uint8_t MPU6050_ReceiveByte(void);
 
-void MPU6050_SendAck();
+void MPU6050_SendAck_Continue();
 
 bool MPU6050_ReceiveAck(void);
 

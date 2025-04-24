@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "Build_in-Led.h"
 #include "MPU6050.h"
+#include "IMU.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,15 +84,16 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  LED_Init();
-  MPU6050_Init();
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-  
+  LED_Init();
+  MPU6050_Init();
+  IMU_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -118,7 +120,7 @@ int main(void)
     // MPU6050_SCL_Clr(); 
     // delay_us(1);
 
-    MPU6050_Test_ack();
+    //PU6050_Test_ack();
 
 
   }

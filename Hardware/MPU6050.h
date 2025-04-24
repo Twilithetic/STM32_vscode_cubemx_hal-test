@@ -21,13 +21,13 @@
 #define MPU6050_SDA_Read()  HAL_GPIO_ReadPin(MPU6050_SDA_PORT, MPU6050_SDA_PIN)
 
 typedef struct {
-    uint16_t Accel_x;
-    uint16_t Accel_y;
-    uint16_t Accel_z;
-    uint16_t Tempature;
-    uint16_t Gyro_x;
-    uint16_t Gyro_y;
-    uint16_t Gyro_z;
+    int16_t Accel_x;
+    int16_t Accel_y;
+    int16_t Accel_z;
+    int16_t Tempature;
+    int16_t Gyro_x;
+    int16_t Gyro_y;
+    int16_t Gyro_z;
 } MPU6050_Data_typedef;
 
 extern uint8_t ID;

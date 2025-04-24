@@ -7,8 +7,15 @@
 
 
 
+
 #endif // !IMU_H
 
 void IMU_Init();
 
 void IMU_test();
+
+void IMU_test2();
+
+void IMU_test3();
+
+MPU6050_Data_typedef IMU_Updata_Data();

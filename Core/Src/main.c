@@ -121,6 +121,9 @@ int main(void)
     // delay_us(1);
 
     //PU6050_Test_ack();
+    //IMU_test();
+    MPU6050_Update_Data();
+    // IMU_Updata_Data();
 
 
   }

@@ -3,6 +3,8 @@
 #define MPU6050_ADDRESS_W 0xD0
 #define MPU6050_ADDRESS_R 0xD1
 
+MPU6050_Data_typedef MPU6050_Data;
+uint8_t ID = 0;
 
 void delay_us(uint32_t us) {
     __HAL_TIM_SET_COUNTER(&htim4, 0); // 计数器清零
@@ -44,6 +46,14 @@ void MPU6050_Init(void)
 
     // } // 1.56mHz
 
+    ID = MPU6050_ReadReg(0x75);
+    MPU6050_WriteReg(MPU6050_PWR_MGMT_1, 0x01); // 解除MPU6050的睡眠模式 内部时钟为陀螺仪时钟 才能对其他寄存器写入数据
+    MPU6050_WriteReg(MPU6050_PWR_MGMT_1, 0x00); // 轴的待机位，不待机
+    MPU6050_WriteReg(MPU6050_SMPLRT_DIV, 0x09); // 时钟分频， 10分频
+    MPU6050_WriteReg(MPU6050_CONFIG, 0x06); // 滤波器的值
+    MPU6050_WriteReg(MPU6050_GYRO_CONFIG, 0x18); // 自测使能与满量程选择
+    MPU6050_WriteReg(MPU6050_ACCEL_CONFIG, 0x18); // 加速度计配置
+    MPU6050_WriteReg(MPU6050_PWR_MGMT_1, 0x00); // 轴的待机位，不待机
 
 }
 
@@ -107,6 +117,78 @@ uint8_t MPU6050_ReadReg(uint8_t RegAddress){
 }
 
 
+/// @brief 发送两个字节 接受14个字节 发送[MPU6050_ADDRESS_W MPU6050_ACCEL_XOUT_H] 接受[MPU6050_ACCEL_XOUT_H .....]一口气从 0x19 读到 0x48 并把数据都放到IMU_Data里 主打一个高效
+/// @param  
+/// @return 
+void MPU6050_Update_Data(void) {
+    uint8_t DataH, DataL;
+    
+    MPU6050_Start();
+    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    MPU6050_ReceiveAck();
+    // 设置读取的开始地址 0x3B
+    MPU6050_SendByte(MPU6050_ACCEL_XOUT_H);
+    MPU6050_ReceiveAck();
+
+    MPU6050_SCL_Clr();// Start要额外拉低一次 完成MPU6050_ReceiveAck的时序， MPU6050_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的MPU6050_SendByte也是在完成后CLK置1的
+    delay_us(1);
+    MPU6050_Start();
+    MPU6050_SendByte(MPU6050_ADDRESS_R);
+    MPU6050_ReceiveAck();
+
+    // Accel_x
+    DataH = MPU6050_ReceiveByte();// 0x3B的数据
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();// 0x3C的数据
+    MPU6050_SendAck_Continue();
+    MPU6050_Data.Accel_x = (DataH << 8) | DataL;
+
+    // Accel_y
+    DataH = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    MPU6050_Data.Accel_y = (DataH << 8) | DataL;
+    
+    // Accel_z
+    DataH = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    MPU6050_Data.Accel_z = (DataH << 8) | DataL;
+
+    // Tempature
+    DataH = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    MPU6050_Data.Tempature = (DataH << 8) | DataL;
+
+    // Gyro_x
+    DataH = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    MPU6050_Data.Gyro_x = (DataH << 8) | DataL;
+
+    // Gyro_y
+    DataH = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    MPU6050_Data.Gyro_y = (DataH << 8) | DataL;
+
+    // Gyro_z
+    DataH = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Continue();
+    DataL = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Done();
+    MPU6050_Data.Gyro_z = (DataH << 8) | DataL;
+
+    MPU6050_Stop();
+}
+
+
 
 
 
@@ -165,8 +247,8 @@ bool MPU6050_ReceiveAck(void){
     delay_us(1);
     MPU6050_SDA_Set();// 释放SDA
     delay_us(1);
-    MPU6050_SCL_Set();
-    delay_us(1);
+    MPU6050_SCL_Set();// 担心！ 万一在SCL置1时下个指令是置SDA为0 这不成Start时序了吗(。_。) 。其实不担心，下个无非是接受或发送字节的程序，他们都会在发送前将 SCL置0的，但 MPU6050_SendAck_Continue()就没那么好运了
+    delay_us(2); // 只是在示波器上好看
     uint8_t AckBit = MPU6050_SDA_Read();
     
     return !AckBit;
@@ -179,7 +261,8 @@ bool MPU6050_ReceiveAck(void){
 /// @return 
 uint8_t MPU6050_ReceiveByte(void){
     uint8_t byte = 0x00;
-    MPU6050_SDA_Set(); // 主机是开漏输出，如果此时从机的最后一个bit数据是0，不置1松开SDA的话（开漏输出不是推挽输出，只能拉低或者撒手不管（置1）），从机的数据就全是0了
+    // 
+    MPU6050_SDA_Set(); // 乌鸡之谈 -->主机是开漏输出，如果此时从机的最后一个bit数据是0，不置1松开SDA的话（开漏输出不是推挽输出，只能拉低或者撒手不管（置1）），从机的数据就全是0了
     delay_us(1);
     for (uint8_t i = 0; i < 8; i++)
     {
@@ -202,7 +285,10 @@ void MPU6050_SendAck_Continue(){
     MPU6050_SDA_Clr();
     delay_us(1);
     MPU6050_SCL_Set();
-    delay_us(1);
+    delay_us(2); // 只是在示波器上好看
+    MPU6050_SCL_Clr();
+    MPU6050_SDA_Set(); // 先 Clr置0 再SDA松手， 不影响后面的时序
+
 }
 
 

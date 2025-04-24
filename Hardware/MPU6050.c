@@ -43,6 +43,19 @@ void MPU6050_Init(void)
 
 }
 
+void MPU6050_Test_ack(){
+    MPU6050_Start();
+    MPU6050_SendByte(0xD0);
+    if(MPU6050_ReceiveAck()){
+      Build_in_LED_Set();
+    } else  
+    {
+      Build_in_LED_Clr();
+    }
+    
+    MPU6050_stop();
+    HAL_Delay(1000);
+}
 /// @brief 在SCL 置1时 如果SDA从1到0 是开始时序（读取数据时 SCL同样SCL置1 但SDA不应该变化）
 /// @param  
 void MPU6050_Start(void){

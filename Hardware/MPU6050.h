@@ -3,6 +3,7 @@
 
 #include "stm32f1xx_hal.h"  // 根据实际芯片型号修改
 #include "tim.h"
+#include "Build_in-Led.h"
 #include <stdbool.h>
 
 
@@ -22,6 +23,8 @@
 void delay_us(uint32_t us);
 
 void MPU6050_Init(void);
+
+void MPU6050_Test_ack();
 
 void MPU6050_Start(void);
 

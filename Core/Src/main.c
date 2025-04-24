@@ -91,7 +91,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -118,14 +118,8 @@ int main(void)
     // MPU6050_SCL_Clr(); 
     // delay_us(1);
 
+    MPU6050_Test_ack();
 
-    MPU6050_Start();
-    MPU6050_SendByte(0xD0);
-    if(MPU6050_ReceiveAck()){
-      Build_in_LED_Set();
-    }
-    //MPU6050_stop();
-    HAL_Delay(1000);
 
   }
   /* USER CODE END 3 */

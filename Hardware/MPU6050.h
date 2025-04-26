@@ -68,30 +68,72 @@ void MPU6050_SendAck_Continue();
 bool MPU6050_ReceiveAck(void);
 
 
-#define	MPU6050_SMPLRT_DIV		0x19
-#define	MPU6050_CONFIG			0x1A
-#define	MPU6050_GYRO_CONFIG		0x1B
-#define	MPU6050_ACCEL_CONFIG	0x1C
+#define MPU6050_SELF_TESTX		0X0D	//自检寄存器X
+#define MPU6050_SELF_TESTY		0X0E	//自检寄存器Y
+#define MPU6050_SELF_TESTZ		0X0F	//自检寄存器Z
+#define MPU6050_SELF_TESTA		0X10	//自检寄存器A
+#define MPU6050_SMPLRT_DIV		0X19	//采样频率分频器
+#define MPU6050_CONFIG			0X1A	//配置寄存器
+#define MPU6050_GYRO_CONFIG		0X1B	//陀螺仪配置寄存器
+#define MPU6050_ACCEL_CONFIG	0X1C	//加速度计配置寄存器
+#define MPU6050_MOTION_DET		0X1F	//运动检测阀值设置寄存器
+#define MPU6050_FIFO_EN			0X23	//FIFO使能寄存器
+#define MPU6050_I2CMST_CTRL		0X24	//IIC主机控制寄存器
+#define MPU6050_I2CSLV0_ADDR	0X25	//IIC从机0器件地址寄存器
+#define MPU6050_I2CSLV0			0X26	//IIC从机0数据地址寄存器
+#define MPU6050_I2CSLV0_CTRL	0X27	//IIC从机0控制寄存器
+#define MPU6050_I2CSLV1_ADDR	0X28	//IIC从机1器件地址寄存器
+#define MPU6050_I2CSLV1			0X29	//IIC从机1数据地址寄存器
+#define MPU6050_I2CSLV1_CTRL	0X2A	//IIC从机1控制寄存器
+#define MPU6050_I2CSLV2_ADDR	0X2B	//IIC从机2器件地址寄存器
+#define MPU6050_I2CSLV2			0X2C	//IIC从机2数据地址寄存器
+#define MPU6050_I2CSLV2_CTRL	0X2D	//IIC从机2控制寄存器
+#define MPU6050_I2CSLV3_ADDR	0X2E	//IIC从机3器件地址寄存器
+#define MPU6050_I2CSLV3			0X2F	//IIC从机3数据地址寄存器
+#define MPU6050_I2CSLV3_CTRL	0X30	//IIC从机3控制寄存器
+#define MPU6050_I2CSLV4_ADDR	0X31	//IIC从机4器件地址寄存器
+#define MPU6050_I2CSLV4			0X32	//IIC从机4数据地址寄存器
+#define MPU6050_I2CSLV4_DO		0X33	//IIC从机4写数据寄存器
+#define MPU6050_I2CSLV4_CTRL	0X34	//IIC从机4控制寄存器
+#define MPU6050_I2CSLV4_DI		0X35	//IIC从机4读数据寄存器
 
-#define	MPU6050_ACCEL_XOUT_H	0x3B
-#define	MPU6050_ACCEL_XOUT_L	0x3C
-#define	MPU6050_ACCEL_YOUT_H	0x3D
-#define	MPU6050_ACCEL_YOUT_L	0x3E
-#define	MPU6050_ACCEL_ZOUT_H	0x3F
-#define	MPU6050_ACCEL_ZOUT_L	0x40
-#define	MPU6050_TEMP_OUT_H		0x41
-#define	MPU6050_TEMP_OUT_L		0x42
-#define	MPU6050_GYRO_XOUT_H		0x43
-#define	MPU6050_GYRO_XOUT_L		0x44
-#define	MPU6050_GYRO_YOUT_H		0x45
-#define	MPU6050_GYRO_YOUT_L		0x46
-#define	MPU6050_GYRO_ZOUT_H		0x47
-#define	MPU6050_GYRO_ZOUT_L		0x48
+#define MPU6050_I2CMST_STA		0X36	//IIC主机状态寄存器
+#define MPU6050_INTBP_CFG		0X37	//中断/旁路设置寄存器
+#define MPU6050_INT_EN			0X38	//中断使能寄存器
+#define MPU6050_INT_STA			0X3A	//中断状态寄存器
 
-#define MPU6050_USER_CTRL       0x6A
-#define	MPU6050_PWR_MGMT_1		0x6B
-#define	MPU6050_PWR_MGMT_2		0x6C
-#define	MPU6050_WHO_AM_I		0x75
+#define MPU6050_ACCEL_XOUTH		0X3B	//加速度值,X轴高8位寄存器
+#define MPU6050_ACCEL_XOUTL		0X3C	//加速度值,X轴低8位寄存器
+#define MPU6050_ACCEL_YOUTH		0X3D	//加速度值,Y轴高8位寄存器
+#define MPU6050_ACCEL_YOUTL		0X3E	//加速度值,Y轴低8位寄存器
+#define MPU6050_ACCEL_ZOUTH		0X3F	//加速度值,Z轴高8位寄存器
+#define MPU6050_ACCEL_ZOUTL		0X40	//加速度值,Z轴低8位寄存器
+
+#define MPU6050_TEMP_OUTH		0X41	//温度值高八位寄存器
+#define MPU6050_TEMP_OUTL		0X42	//温度值低8位寄存器
+
+#define MPU6050_GYRO_XOUTH		0X43	//陀螺仪值,X轴高8位寄存器
+#define MPU6050_GYRO_XOUTL		0X44	//陀螺仪值,X轴低8位寄存器
+#define MPU6050_GYRO_YOUTH		0X45	//陀螺仪值,Y轴高8位寄存器
+#define MPU6050_GYRO_YOUTL		0X46	//陀螺仪值,Y轴低8位寄存器
+#define MPU6050_GYRO_ZOUTH		0X47	//陀螺仪值,Z轴高8位寄存器
+#define MPU6050_GYRO_ZOUTL		0X48	//陀螺仪值,Z轴低8位寄存器
+
+#define MPU6050_I2CSLV0_DO		0X63	//IIC从机0数据寄存器
+#define MPU6050_I2CSLV1_DO		0X64	//IIC从机1数据寄存器
+#define MPU6050_I2CSLV2_DO		0X65	//IIC从机2数据寄存器
+#define MPU6050_I2CSLV3_DO		0X66	//IIC从机3数据寄存器
+
+#define MPU6050_I2CMST_DELAY	0X67	//IIC主机延时管理寄存器
+#define MPU6050_SIGPATH_RST		0X68	//信号通道复位寄存器
+#define MPU6050_MDETECT_CTRL	0X69	//运动检测控制寄存器
+#define MPU6050_USER_CTRL		0X6A	//用户控制寄存器
+#define MPU6050_PWR_MGMT_1		0X6B	//电源管理寄存器1
+#define MPU6050_PWR_MGMT_2		0X6C	//电源管理寄存器2 
+#define MPU6050_FIFO_CNTH		0X72	//FIFO计数寄存器高八位
+#define MPU6050_FIFO_CNTL		0X73	//FIFO计数寄存器低八位
+#define MPU6050_FIFO_RW			0X74	//FIFO读写寄存器
+#define MPU6050_DEVICE_ID		0X75	//器件ID寄存器
 
 
 

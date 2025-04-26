@@ -48,6 +48,20 @@ void MPU6050_Init(void)
     MPU6050_SDA_Set();
     MPU6050_SCL_Set();
 
+    // 初始化了哪些寄存器
+	// MPU_PWR_MGMT1_REG,0X80 复位MPU6050
+	// MPU_PWR_MGMT1_REG,0X00 唤醒MPU6050 
+	// MPU_GYRO_CFG_REG，0x18 陀螺仪传感器,±2000dps
+	// MPU_ACCEL_CFG_REG，0x18 加速度传感器,±2g
+	// MPU_SAMPLE_RATE_REG，0x19 设置采样率50Hz
+	// MPU_INT_EN_REG,0X00 关闭所有中断
+	// MPU_USER_CTRL_REG,0X00 I2C主模式关闭
+	// MPU_FIFO_EN_REG,0X00 关闭FIFO
+	// MPU_INTBP_CFG_REG,0X80 INT引脚低电平有效
+
+	// MPU_PWR_MGMT1_REG,0X01 设置CLKSEL,PLL X轴为参考
+	// MPU_PWR_MGMT2_REG,0X00 加速度与陀螺仪都工作
+
     ID = MPU6050_ReadReg(0x75);
     MPU6050_WriteReg(MPU6050_PWR_MGMT_1, 0x01); // 解除MPU6050的睡眠模式 采样时钟为陀螺仪x的时钟 才能对其他寄存器写入数据
     MPU6050_WriteReg(MPU6050_PWR_MGMT_2, 0x00); // 6轴采样待机位，不待机

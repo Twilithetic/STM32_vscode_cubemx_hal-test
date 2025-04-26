@@ -6,8 +6,7 @@
     "Core",
     "Drivers",
     "Hardware",
-    "Software",
-    "Z_Others_Migration"
+    "Software"
   ],
   "virtualFolder": {
     "name": "<virtual_root>",

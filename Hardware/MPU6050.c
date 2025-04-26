@@ -49,30 +49,48 @@ void MPU6050_Init(void)
     MPU6050_SCL_Set();
 
     // 初始化了哪些寄存器
-	// MPU_PWR_MGMT1_REG,0X80 复位MPU6050
-	// MPU_PWR_MGMT1_REG,0X00 唤醒MPU6050 
-	// MPU_GYRO_CFG_REG，0x18 陀螺仪传感器,±2000dps
-	// MPU_ACCEL_CFG_REG，0x18 加速度传感器,±2g
-	// MPU_SAMPLE_RATE_REG，0x19 设置采样率50Hz
-	// MPU_INT_EN_REG,0X00 关闭所有中断
-	// MPU_USER_CTRL_REG,0X00 I2C主模式关闭
-	// MPU_FIFO_EN_REG,0X00 关闭FIFO
-	// MPU_INTBP_CFG_REG,0X80 INT引脚低电平有效
+	// MPU6050_PWR_MGMT1,0X80 复位MPU6050
+	// MPU6050_PWR_MGMT1,0X00 唤醒MPU6050 
 
-	// MPU_PWR_MGMT1_REG,0X01 设置CLKSEL,PLL X轴为参考
-	// MPU_PWR_MGMT2_REG,0X00 加速度与陀螺仪都工作
+	// MPU6050_GYRO_CFG，0x18 陀螺仪传感器,±2000dps
+	// MPU6050_ACCEL_CFG，0x18 加速度传感器,±2g
+	// MPU6050_SAMPLE_RATE，0x09 设置采样率100Hz
 
-    ID = MPU6050_ReadReg(0x75);
-    MPU6050_WriteReg(MPU6050_PWR_MGMT_1, 0x01); // 解除MPU6050的睡眠模式 采样时钟为陀螺仪x的时钟 才能对其他寄存器写入数据
-    MPU6050_WriteReg(MPU6050_PWR_MGMT_2, 0x00); // 6轴采样待机位，不待机
+	// MPU6050_INT_EN,0X00 关闭所有中断
+	// MPU6050_USER_CTRL,0X00 I2C主模式关闭
+	// MPU6050_FIFO_EN,0X00 关闭FIFO
+	// MPU6050_INTBP_CFG,0X80 INT引脚低电平有效
 
-    MPU6050_WriteReg(MPU6050_SMPLRT_DIV, 0x09); // 时钟分频， 10分频
-    MPU6050_WriteReg(MPU6050_CONFIG, 0x03); // 滤波器的值 5ms延迟
+	// MPU6050_PWR_MGMT1,0X01 设置CLKSEL,PLL X轴为参考
+	// MPU6050_PWR_MGMT2,0X00 加速度与陀螺仪都工作
 
-    MPU6050_WriteReg(MPU6050_GYRO_CONFIG, 0x18); // 陀螺仪满量程选择
-    MPU6050_WriteReg(MPU6050_ACCEL_CONFIG, 0x18); // 加速度计满量程选择
+    ID = MPU6050_Reg_Read(0x75);
+    MPU6050_Reg_Write(MPU6050_PWR_MGMT_1, 0x01); // 解除MPU6050的睡眠模式 采样时钟为陀螺仪x的时钟 才能对其他寄存器写入数据
 
-    MPU6050_WriteReg(MPU6050_USER_CTRL, 0x04); // 寄存器启用 DMP DMP_EN=1（手册上不是这样写的，豆包这样说）
+    MPU6050_Reg_Write(MPU6050_GYRO_CONFIG, 0x18); // 陀螺仪满量程选择
+    MPU6050_Reg_Write(MPU6050_ACCEL_CONFIG, 0x18); // 加速度计满量程选择
+    MPU6050_Reg_Write(MPU6050_SMPLRT_DIV, 0x09); // 时钟分频， 10分频
+    
+    MPU6050_Reg_Write(MPU6050_INT_EN,0X00); 
+    MPU6050_Reg_Write(MPU6050_USER_CTRL,0X00); 
+    MPU6050_Reg_Write(MPU6050_FIFO_EN,0X00); 
+    MPU6050_Reg_Write(MPU6050_INTBP_CFG,0X80); 
+
+    MPU6050_Reg_Write(MPU6050_PWR_MGMT_2,0X00); 
+
+}
+
+void MPU6050_DMP_Init(){
+
+    MPU6050_Reg_Write(MPU6050_INT_EN,0X01); 
+    if (!IS_UPLOAD_FIRMWARE)
+    {
+        MPU6050_Updata_Firmware();
+    }
+    
+
+
+
 }
 
 /// @brief 这个函数会在I2C上 发送一个字节 有Ack LED会亮 [MPU6050_ADDRESS_W]
@@ -90,49 +108,7 @@ void MPU6050_Test_ack(){
     HAL_Delay(1000);
 }
 
-/// @brief 这个函数会在I2C上 发送三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data]
-/// @param RegAddress 
-/// @param Data 
-void MPU6050_WriteReg(uint8_t RegAddress, uint8_t Data){
 
-    MPU6050_Start();
-
-    MPU6050_SendByte(MPU6050_ADDRESS_W);
-    MPU6050_ReceiveAck();
-    MPU6050_SendByte(RegAddress);
-    MPU6050_ReceiveAck();
-    MPU6050_SendByte(Data);
-    MPU6050_ReceiveAck();
-
-    MPU6050_Stop();
-
-}
-
-/// @brief 这个函数会在I2C上 发送两个字节 接收一个字节 实现读寄存器数据的功能 发送[MPU6050_ADDRESS_W RegAddress] 读取到[Data]
-/// @param RegAddress 
-/// @param Data 
-/// @return 
-uint8_t MPU6050_ReadReg(uint8_t RegAddress){
-
-    MPU6050_Start();
-
-    MPU6050_SendByte(MPU6050_ADDRESS_W);
-    MPU6050_ReceiveAck();
-    MPU6050_SendByte(RegAddress);
-    MPU6050_ReceiveAck();
-
-    MPU6050_SCL_Clr();// Start要额外拉低一次 完成MPU6050_ReceiveAck的时序， MPU6050_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的MPU6050_SendByte也是在完成后CLK置1的
-    delay_us(1);
-    MPU6050_Start();
-    MPU6050_SendByte(MPU6050_ADDRESS_R);
-    MPU6050_ReceiveAck();
-    uint8_t Data = MPU6050_ReceiveByte();
-    MPU6050_SendAck_Done();
-
-    MPU6050_Stop();
-
-    return Data;
-}
 
 
 /// @brief 发送两个字节 接受14个字节 发送[MPU6050_ADDRESS_W MPU6050_ACCEL_XOUT_H] 接受[MPU6050_ACCEL_XOUT_H .....]一口气从 0x19 读到 0x48 并把数据都放到IMU_Data里 主打一个高效 大概 1ms耗时
@@ -208,11 +184,100 @@ void MPU6050_Update_Data(void) {
 
 
 void MPU6050_Update_Quaternion(void){
+
+
+}
+
+
+void MPU6050_Updata_Firmware(void){
+    unsigned short ii;
+    unsigned short this_write;
+    /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
+#define LOAD_CHUNK  (16)
+    unsigned char cur[LOAD_CHUNK], tmp[2];
+
+    if (st.chip_cfg.dmp_loaded)
+        /* DMP should only be loaded once. */
+        return -1;
+
+    if (!firmware)
+        return -1;
+    for (ii = 0; ii < length; ii += this_write) {
+        this_write = min(LOAD_CHUNK, length - ii);
+        if (mpu_write_mem(ii, this_write, (unsigned char*)&firmware[ii]))
+            return -1;
+        if (mpu_read_mem(ii, this_write, cur))
+            return -1;
+        if (memcmp(firmware+ii, cur, this_write))
+            return -2;
+    }
+
+    /* Set program start address. */
+    tmp[0] = start_addr >> 8;
+    tmp[1] = start_addr & 0xFF;
+    if (i2c_write(st.hw->addr, st.reg->prgm_start_h, 2, tmp))
+        return -1;
+
+    st.chip_cfg.dmp_loaded = 1;
+    st.chip_cfg.dmp_sample_rate = sample_rate;
+    return 0;
+
+
+
+}
+
+//******************************** */
+//            寄存器读写 实现
+//******************************** */
+
+/// @brief 这个函数会在I2C上 发送三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data]
+/// @param RegAddress 
+/// @param Data 
+void MPU6050_Write_Reg_(uint8_t RegAddress, uint8_t Data){
+
     MPU6050_Start();
+
     MPU6050_SendByte(MPU6050_ADDRESS_W);
     MPU6050_ReceiveAck();
-    // 设置读取的开始地址 0x3B
-    MPU6050_SendByte(MPU6050_ACCEL_XOUT_H);
+    MPU6050_SendByte(RegAddress);
+    MPU6050_ReceiveAck();
+    MPU6050_SendByte(Data);
+    MPU6050_ReceiveAck();
+
+    MPU6050_Stop();
+
+}
+
+
+/// @brief 这个函数会在I2C上 发送三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data]
+/// @param RegAddress 
+/// @param Data 
+void MPU6050_Reg_Write(uint8_t RegAddress, uint8_t Data){
+
+    MPU6050_Start();
+
+    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    MPU6050_ReceiveAck();
+    MPU6050_SendByte(RegAddress);
+    MPU6050_ReceiveAck();
+    MPU6050_SendByte(Data);
+    MPU6050_ReceiveAck();
+
+    MPU6050_Stop();
+
+}
+
+/// @brief 这个函数会在I2C上 发送两个字节 接收一个字节 实现读寄存器数据的功能 发送[MPU6050_ADDRESS_W RegAddress] 读取到[Data]
+/// @param RegAddress 
+/// @param Data 
+/// @return 
+uint8_t MPU6050_Reg_Read(uint8_t RegAddress){
+
+    MPU6050_Start();
+
+    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    MPU6050_ReceiveAck();
+    MPU6050_SendByte(RegAddress);
     MPU6050_ReceiveAck();
 
     MPU6050_SCL_Clr();// Start要额外拉低一次 完成MPU6050_ReceiveAck的时序， MPU6050_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的MPU6050_SendByte也是在完成后CLK置1的
@@ -220,12 +285,13 @@ void MPU6050_Update_Quaternion(void){
     MPU6050_Start();
     MPU6050_SendByte(MPU6050_ADDRESS_R);
     MPU6050_ReceiveAck();
+    uint8_t Data = MPU6050_ReceiveByte();
+    MPU6050_SendAck_Done();
 
+    MPU6050_Stop();
+
+    return Data;
 }
-
-
-
-
 
 
 //******************************** */

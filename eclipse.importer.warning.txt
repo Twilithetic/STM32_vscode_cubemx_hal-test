@@ -1,4 +1,4 @@
-!!! Warning !!!
+
 
 There are some incompatible arguments between 'eclipse' and 'eide', you need check and add them to eide project manually !
 

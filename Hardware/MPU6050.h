@@ -138,14 +138,14 @@ bool MPU6050_ReceiveAck(void);
 
 //DMP相关
 #define DMP_CODE_SIZE           3062
-#define DMP_LOAD_CHUNK          16
+#define DMP_LOAD_CHUNK          16      /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
 #define DMP_BANL_SEL            0x6D    //固件读写
 #define DMP_MEM_R_W             0x6F
 
 #define prgm_start_h            0x70   //固件写入完成后要修改程序的开始位置
 
-static const unsigned short sStartAddress = 0x0400;
-static const unsigned char dmp_memory[DMP_CODE_SIZE] = {
+static const uint16_t sStartAddress = 0x0400;
+static const uint8_t DMP_FIRMWARE[DMP_CODE_SIZE] = {
     /* bank # 0 */
     0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
     0x00, 0x65, 0x00, 0x54, 0xff, 0xef, 0x00, 0x00, 0xfa, 0x80, 0x00, 0x0b, 0x12, 0x82, 0x00, 0x01,

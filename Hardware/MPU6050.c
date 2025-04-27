@@ -85,7 +85,7 @@ void MPU6050_DMP_Init(){
     MPU6050_Reg_Write(MPU6050_INT_EN,0X01); 
     if (!IS_UPLOAD_FIRMWARE)
     {
-        MPU6050_Updata_Firmware();
+        MPU6050_Upload_Firmware();
     }
     
 
@@ -189,26 +189,20 @@ void MPU6050_Update_Quaternion(void){
 }
 
 
-void MPU6050_Updata_Firmware(void){
-    unsigned short ii;
-    unsigned short this_write;
-    /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
-#define LOAD_CHUNK  (16)
-    unsigned char cur[LOAD_CHUNK], tmp[2];
+void MPU6050_Upload_Firmware(uint8_t DMP_FIRMWARE[]){
 
-    if (st.chip_cfg.dmp_loaded)
-        /* DMP should only be loaded once. */
-        return -1;
+    if (IS_UPLOAD_FIRMWARE) return;
 
-    if (!firmware)
-        return -1;
-    for (ii = 0; ii < length; ii += this_write) {
-        this_write = min(LOAD_CHUNK, length - ii);
-        if (mpu_write_mem(ii, this_write, (unsigned char*)&firmware[ii]))
+    unsigned short Write_Length;
+    unsigned char cur[DMP_LOAD_CHUNK], tmp[2];
+
+    for (uint16_t i = 0; i < DMP_CODE_SIZE; i += Write_Length) {
+        Write_Length = min(DMP_LOAD_CHUNK, DMP_CODE_SIZE - i);
+        if (mpu_write_mem(i, Write_Length, (unsigned char*)&DMP_FIRMWARE[i]))
             return -1;
-        if (mpu_read_mem(ii, this_write, cur))
+        if (mpu_read_mem(i, Write_Length, cur))
             return -1;
-        if (memcmp(firmware+ii, cur, this_write))
+        if (memcmp(DMP_FIRMWARE+i, cur, Write_Length))
             return -2;
     }
 
@@ -221,7 +215,7 @@ void MPU6050_Updata_Firmware(void){
     st.chip_cfg.dmp_loaded = 1;
     st.chip_cfg.dmp_sample_rate = sample_rate;
     return 0;
-
+    // reality?
 
 
 }
@@ -230,10 +224,10 @@ void MPU6050_Updata_Firmware(void){
 //            寄存器读写 实现
 //******************************** */
 
-/// @brief 这个函数会在I2C上 发送三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data]
+/// @brief 这个函数会在I2C上 发送至少三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data1 Data2 Data3 ...]
 /// @param RegAddress 
 /// @param Data 
-void MPU6050_Write_Reg_(uint8_t RegAddress, uint8_t Data){
+void MPU6050_Reg_Write_Many_Data(uint8_t RegAddress, uint8_t Data[]){
 
     MPU6050_Start();
 
@@ -241,13 +235,51 @@ void MPU6050_Write_Reg_(uint8_t RegAddress, uint8_t Data){
     MPU6050_ReceiveAck();
     MPU6050_SendByte(RegAddress);
     MPU6050_ReceiveAck();
-    MPU6050_SendByte(Data);
-    MPU6050_ReceiveAck();
+
+    for (uint16_t i = 0; i < sizeof(Data); i++)
+    {
+        MPU6050_SendByte(Data[i]);
+        MPU6050_ReceiveAck();
+    }
 
     MPU6050_Stop();
 
 }
 
+
+/// @brief 这个函数会在I2C上 发送两个字节 接收一个字节 实现读寄存器数据的功能 发送[MPU6050_ADDRESS_W RegAddress] 读取到[Data]
+/// @param RegAddress 
+/// @param Data 
+/// @return 
+void MPU6050_Reg_Read_Many_Data(uint8_t RegAddress, uint8_t length, uint8_t *Data){
+
+    MPU6050_Start();
+
+    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    MPU6050_ReceiveAck();
+    MPU6050_SendByte(RegAddress);
+    MPU6050_ReceiveAck();
+
+    MPU6050_SCL_Clr();// Start要额外拉低一次 完成MPU6050_ReceiveAck的时序， MPU6050_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的MPU6050_SendByte也是在完成后CLK置1的
+    delay_us(1);
+    MPU6050_Start();
+    MPU6050_SendByte(MPU6050_ADDRESS_R);
+    MPU6050_ReceiveAck();
+    for (uint8_t i = 0; i < length; i++)
+    {
+        Data[i] = MPU6050_ReceiveByte();
+        if (i < length - 1)
+        {
+            MPU6050_SendAck_Continue();
+        } else {
+            MPU6050_SendAck_Done();
+        }
+    }
+
+    MPU6050_Stop();
+
+    return Data;
+}
 
 /// @brief 这个函数会在I2C上 发送三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data]
 /// @param RegAddress 

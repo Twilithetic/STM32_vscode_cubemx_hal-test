@@ -193,31 +193,29 @@ void MPU6050_Upload_Firmware(uint8_t DMP_FIRMWARE[]){
 
     if (IS_UPLOAD_FIRMWARE) return;
 
-    unsigned short Write_Length;
-    unsigned char cur[DMP_LOAD_CHUNK], tmp[2];
+    uint8_t buffer[DMP_LOAD_CHUNK];
+    uint16_t buffer_index = 0;
+    uint8_t DMP_Firmware_Upload_dp[2];
 
-    for (uint16_t i = 0; i < DMP_CODE_SIZE; i += Write_Length) {
-        Write_Length = min(DMP_LOAD_CHUNK, DMP_CODE_SIZE - i);
-        if (mpu_write_mem(i, Write_Length, (unsigned char*)&DMP_FIRMWARE[i]))
-            return -1;
-        if (mpu_read_mem(i, Write_Length, cur))
-            return -1;
-        if (memcmp(DMP_FIRMWARE+i, cur, Write_Length))
-            return -2;
+    // 将DMP固件 16个字节一次 发好多次
+    for (uint16_t i = 0; i < DMP_CODE_SIZE; i++) {
+        buffer[buffer_index++] = DMP_FIRMWARE[i];
+        // buffer填满了该发送了
+        if (buffer_index == DMP_LOAD_CHUNK || i == DMP_CODE_SIZE - 1) {
+            DMP_Firmware_Upload_dp[0] = (uint8_t)(i >> 8);
+            DMP_Firmware_Upload_dp[1] = (uint8_t)(i & 0xFF);
+            MPU6050_Reg_Write_Many_Data(DMP_BANL_SEL, 2, DMP_Firmware_Upload_dp); //设置这16个字节放在固件flash里的哪个地址
+            MPU6050_Reg_Write_Many_Data(DMP_MEM_R_W, sizeof(buffer), buffer); // 从前一步设定的地址开始送固件的16个字节进去
+            // 重置缓冲区索引和更新当前地址
+            buffer_index = 0;
+        }
     }
 
+    uint8_t tmp[2];
     /* Set program start address. */
-    tmp[0] = start_addr >> 8;
-    tmp[1] = start_addr & 0xFF;
-    if (i2c_write(st.hw->addr, st.reg->prgm_start_h, 2, tmp))
-        return -1;
-
-    st.chip_cfg.dmp_loaded = 1;
-    st.chip_cfg.dmp_sample_rate = sample_rate;
-    return 0;
-    // reality?
-
-
+    tmp[0] = DMP_START_ADDRESS >> 8;
+    tmp[1] = DMP_START_ADDRESS & 0xFF;
+    MPU6050_Reg_Write_Many_Data(DMP_PRGM_START_H, 2, DMP_START_ADDRESS);
 }
 
 //******************************** */
@@ -227,7 +225,7 @@ void MPU6050_Upload_Firmware(uint8_t DMP_FIRMWARE[]){
 /// @brief 这个函数会在I2C上 发送至少三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data1 Data2 Data3 ...]
 /// @param RegAddress 
 /// @param Data 
-void MPU6050_Reg_Write_Many_Data(uint8_t RegAddress, uint8_t Data[]){
+void MPU6050_Reg_Write_Many_Data(uint8_t RegAddress, uint8_t length, uint8_t *Data){
 
     MPU6050_Start();
 
@@ -236,7 +234,7 @@ void MPU6050_Reg_Write_Many_Data(uint8_t RegAddress, uint8_t Data[]){
     MPU6050_SendByte(RegAddress);
     MPU6050_ReceiveAck();
 
-    for (uint16_t i = 0; i < sizeof(Data); i++)
+    for (uint16_t i = 0; i < length; i++)
     {
         MPU6050_SendByte(Data[i]);
         MPU6050_ReceiveAck();

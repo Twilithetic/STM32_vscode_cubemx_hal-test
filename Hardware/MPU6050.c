@@ -196,6 +196,7 @@ void MPU6050_Upload_Firmware(uint8_t DMP_FIRMWARE[]){
     uint8_t buffer[DMP_LOAD_CHUNK];
     uint16_t buffer_index = 0;
     uint8_t DMP_Firmware_Upload_dp[2];
+    uint8_t DMP_Start_Address[2];
 
     // 将DMP固件 16个字节一次 发好多次
     for (uint16_t i = 0; i < DMP_CODE_SIZE; i++) {
@@ -205,17 +206,16 @@ void MPU6050_Upload_Firmware(uint8_t DMP_FIRMWARE[]){
             DMP_Firmware_Upload_dp[0] = (uint8_t)(i >> 8);
             DMP_Firmware_Upload_dp[1] = (uint8_t)(i & 0xFF);
             MPU6050_Reg_Write_Many_Data(DMP_BANL_SEL, 2, DMP_Firmware_Upload_dp); //设置这16个字节放在固件flash里的哪个地址
-            MPU6050_Reg_Write_Many_Data(DMP_MEM_R_W, sizeof(buffer), buffer); // 从前一步设定的地址开始送固件的16个字节进去
+            MPU6050_Reg_Write_Many_Data(DMP_MEM_R_W, buffer_index, buffer); // 从前一步设定的地址开始送固件的16个字节进去
             // 重置缓冲区索引和更新当前地址
             buffer_index = 0;
         }
     }
 
-    uint8_t tmp[2];
     /* Set program start address. */
-    tmp[0] = DMP_START_ADDRESS >> 8;
-    tmp[1] = DMP_START_ADDRESS & 0xFF;
-    MPU6050_Reg_Write_Many_Data(DMP_PRGM_START_H, 2, DMP_START_ADDRESS);
+    DMP_Start_Address[0] = DMP_START_ADDRESS >> 8;
+    DMP_Start_Address[1] = DMP_START_ADDRESS & 0xFF;
+    MPU6050_Reg_Write_Many_Data(DMP_PRGM_START_H, 2, DMP_Start_Address);
 }
 
 //******************************** */

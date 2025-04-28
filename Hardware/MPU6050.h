@@ -15,7 +15,6 @@
 #define MPU6050_SDA_PORT GPIOB
 #define MPU6050_SDA_PIN GPIO_PIN_15
 
-#define IS_UPLOAD_FIRMWARE false
 
 #define delay_us(us) TIM4_delay_us(us)
 #define MPU6050_SCL_Clr()  HAL_GPIO_WritePin(MPU6050_SCL_PORT, MPU6050_SCL_PIN, GPIO_PIN_RESET)

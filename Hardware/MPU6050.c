@@ -8,29 +8,7 @@ uint8_t ID = 0;
 MPU6050_Data_typedef MPU6050_Data;
 MPU6050_DMP_Data_typedef MPU6050_DMP_Data;
 
-/// @brief 没有这个 I2C会跑到接近 800kHz 的速度，而MPU6050 的fastI2C 只有500kHz 从机跟不上主机的速度 这个还要TIM4的硬件资源
-    // while (1)
-    // {
-    //     MPU6050_SCL_Set();
-    //     delay_us(1);
-    //     MPU6050_SCL_Clr(); 
-    //     delay_us(1);
-    // } // 273kHz
 
-    // while (1)
-    // {
-    //     MPU6050_SCL_Set();
-
-    //     MPU6050_SCL_Clr(); 
-
-    // } // 1.56mHz
-/// @param us 
-void TIM4_delay_us(uint16_t us) {
-    __HAL_TIM_SET_COUNTER(&htim4, 0); // 计数器清零
-    __HAL_TIM_ENABLE(&htim4);         // 启动定时器
-    while (__HAL_TIM_GET_COUNTER(&htim4) < us); // 轮询等待
-    __HAL_TIM_DISABLE(&htim4);        // 停止定时器
-}
 
 void MPU6050_Init(void)
 {
@@ -48,7 +26,10 @@ void MPU6050_Init(void)
 
     MPU6050_SDA_Set();
     MPU6050_SCL_Set();
+
     ID = MPU6050_Reg_Read(0x75);
+
+    while(mpu_dmp_init()) {HAL_Delay(20);}
 
     // 初始化了哪些寄存器
 	// MPU6050_PWR_MGMT1,0X80 复位MPU6050
@@ -79,7 +60,7 @@ void MPU6050_Init(void)
     // MPU6050_Reg_Write(MPU6050_INTBP_CFG,0X80); 
 
     // MPU6050_Reg_Write(MPU6050_PWR_MGMT_2,0X00); 
-    mpu_dmp_init();
+
 
 }
 
@@ -287,6 +268,30 @@ uint8_t MPU6050_Reg_Read(uint8_t RegAddress){
 //******************************** */
 //            I2C 实现
 //******************************** */
+
+/// @brief 没有这个 I2C会跑到接近 800kHz 的速度，而MPU6050 的fastI2C 只有500kHz 从机跟不上主机的速度 这个还要TIM4的硬件资源
+    // while (1)
+    // {
+    //     MPU6050_SCL_Set();
+    //     delay_us(1);
+    //     MPU6050_SCL_Clr(); 
+    //     delay_us(1);
+    // } // 273kHz
+
+    // while (1)
+    // {
+    //     MPU6050_SCL_Set();
+
+    //     MPU6050_SCL_Clr(); 
+
+    // } // 1.56mHz
+/// @param us 
+void TIM4_delay_us(uint16_t us) {
+    __HAL_TIM_SET_COUNTER(&htim4, 0); // 计数器清零
+    __HAL_TIM_ENABLE(&htim4);         // 启动定时器
+    while (__HAL_TIM_GET_COUNTER(&htim4) < us); // 轮询等待
+    __HAL_TIM_DISABLE(&htim4);        // 停止定时器
+}
 
 /// @brief 在SCL 置1时 如果SDA从1到0 是开始时序（读取数据时 SCL同样SCL置1 但SDA不应该变化）
 /// @param  

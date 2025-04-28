@@ -3,9 +3,10 @@
 #define MPU6050_ADDRESS_W 0xD0
 #define MPU6050_ADDRESS_R 0xD1
 
-QuaternionTypedef Quaternion= {1.0f, 0.0f, 0.0f, 0.0f};  // 初始化为单位四元数;
-MPU6050_Data_typedef MPU6050_Data;
+
 uint8_t ID = 0;
+MPU6050_Data_typedef MPU6050_Data;
+MPU6050_DMP_Data_typedef MPU6050_DMP_Data;
 
 /// @brief 没有这个 I2C会跑到接近 800kHz 的速度，而MPU6050 的fastI2C 只有500kHz 从机跟不上主机的速度 这个还要TIM4的硬件资源
     // while (1)
@@ -47,6 +48,7 @@ void MPU6050_Init(void)
 
     MPU6050_SDA_Set();
     MPU6050_SCL_Set();
+    ID = MPU6050_Reg_Read(0x75);
 
     // 初始化了哪些寄存器
 	// MPU6050_PWR_MGMT1,0X80 复位MPU6050
@@ -64,34 +66,23 @@ void MPU6050_Init(void)
 	// MPU6050_PWR_MGMT1,0X01 设置CLKSEL,PLL X轴为参考
 	// MPU6050_PWR_MGMT2,0X00 加速度与陀螺仪都工作
 
-    ID = MPU6050_Reg_Read(0x75);
-    MPU6050_Reg_Write(MPU6050_PWR_MGMT_1, 0x01); // 解除MPU6050的睡眠模式 采样时钟为陀螺仪x的时钟 才能对其他寄存器写入数据
-
-    MPU6050_Reg_Write(MPU6050_GYRO_CONFIG, 0x18); // 陀螺仪满量程选择
-    MPU6050_Reg_Write(MPU6050_ACCEL_CONFIG, 0x18); // 加速度计满量程选择
-    MPU6050_Reg_Write(MPU6050_SMPLRT_DIV, 0x09); // 时钟分频， 10分频
     
-    MPU6050_Reg_Write(MPU6050_INT_EN,0X00); 
-    MPU6050_Reg_Write(MPU6050_USER_CTRL,0X00); 
-    MPU6050_Reg_Write(MPU6050_FIFO_EN,0X00); 
-    MPU6050_Reg_Write(MPU6050_INTBP_CFG,0X80); 
+    // MPU6050_Reg_Write(MPU6050_PWR_MGMT_1, 0x01); // 解除MPU6050的睡眠模式 采样时钟为陀螺仪x的时钟 才能对其他寄存器写入数据
 
-    MPU6050_Reg_Write(MPU6050_PWR_MGMT_2,0X00); 
+    // MPU6050_Reg_Write(MPU6050_GYRO_CONFIG, 0x18); // 陀螺仪满量程选择
+    // MPU6050_Reg_Write(MPU6050_ACCEL_CONFIG, 0x18); // 加速度计满量程选择
+    // MPU6050_Reg_Write(MPU6050_SMPLRT_DIV, 0x09); // 时钟分频， 10分频
+    
+    // MPU6050_Reg_Write(MPU6050_INT_EN,0X00); 
+    // MPU6050_Reg_Write(MPU6050_USER_CTRL,0X00); 
+    // MPU6050_Reg_Write(MPU6050_FIFO_EN,0X00); 
+    // MPU6050_Reg_Write(MPU6050_INTBP_CFG,0X80); 
+
+    // MPU6050_Reg_Write(MPU6050_PWR_MGMT_2,0X00); 
+    mpu_dmp_init();
 
 }
 
-void MPU6050_DMP_Init(){
-
-    MPU6050_Reg_Write(MPU6050_INT_EN,0X01); 
-    if (!IS_UPLOAD_FIRMWARE)
-    {
-        MPU6050_Upload_Firmware();
-    }
-    
-
-
-
-}
 
 /// @brief 这个函数会在I2C上 发送一个字节 有Ack LED会亮 [MPU6050_ADDRESS_W]
 void MPU6050_Test_ack(){
@@ -121,7 +112,7 @@ void MPU6050_Update_Data(void) {
     MPU6050_SendByte(MPU6050_ADDRESS_W);
     MPU6050_ReceiveAck();
     // 设置读取的开始地址 0x3B
-    MPU6050_SendByte(MPU6050_ACCEL_XOUT_H);
+    MPU6050_SendByte(MPU6050_ACCEL_XOUTH);
     MPU6050_ReceiveAck();
 
     MPU6050_SCL_Clr();// Start要额外拉低一次 完成MPU6050_ReceiveAck的时序， MPU6050_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的MPU6050_SendByte也是在完成后CLK置1的
@@ -182,61 +173,29 @@ void MPU6050_Update_Data(void) {
     MPU6050_Stop();
 }
 
-
-void MPU6050_Update_Quaternion(void){
+void MPU6050_Updata_DMP_Data(void){
+    
+    mpu_dmp_get_data(&MPU6050_DMP_Data.pitch, &MPU6050_DMP_Data.roll, &MPU6050_DMP_Data.yaw);
 
 
 }
 
-
-void MPU6050_Upload_Firmware(uint8_t DMP_FIRMWARE[]){
-
-    if (IS_UPLOAD_FIRMWARE) return;
-
-    uint8_t buffer[DMP_LOAD_CHUNK];
-    uint16_t buffer_index = 0;
-    uint8_t DMP_Firmware_Upload_dp[2];
-    uint8_t DMP_Start_Address[2];
-
-    // 将DMP固件 16个字节一次 发好多次
-    for (uint16_t i = 0; i < DMP_CODE_SIZE; i++) {
-        buffer[buffer_index++] = DMP_FIRMWARE[i];
-        // buffer填满了该发送了
-        if (buffer_index == DMP_LOAD_CHUNK || i == DMP_CODE_SIZE - 1) {
-            DMP_Firmware_Upload_dp[0] = (uint8_t)(i >> 8);
-            DMP_Firmware_Upload_dp[1] = (uint8_t)(i & 0xFF);
-            MPU6050_Reg_Write_Many_Data(DMP_BANL_SEL, 2, DMP_Firmware_Upload_dp); //设置这16个字节放在固件flash里的哪个地址
-            MPU6050_Reg_Write_Many_Data(DMP_MEM_R_W, buffer_index, buffer); // 从前一步设定的地址开始送固件的16个字节进去
-            // 重置缓冲区索引和更新当前地址
-            buffer_index = 0;
-        }
-    }
-
-    /* Set program start address. */
-    DMP_Start_Address[0] = DMP_START_ADDRESS >> 8;
-    DMP_Start_Address[1] = DMP_START_ADDRESS & 0xFF;
-    MPU6050_Reg_Write_Many_Data(DMP_PRGM_START_H, 2, DMP_Start_Address);
-}
 
 //******************************** */
 //            寄存器读写 实现
 //******************************** */
 
-/// @brief 这个函数会在I2C上 发送至少三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data1 Data2 Data3 ...]
-/// @param RegAddress 
-/// @param Data 
-void MPU6050_Reg_Write_Many_Data(uint8_t RegAddress, uint8_t length, uint8_t *Data){
+void MPU6050_Reg_Write_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data){
 
     MPU6050_Start();
 
-    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    MPU6050_SendByte(MPU6050_Address);
     MPU6050_ReceiveAck();
     MPU6050_SendByte(RegAddress);
     MPU6050_ReceiveAck();
-
-    for (uint16_t i = 0; i < length; i++)
+    while (length--)
     {
-        MPU6050_SendByte(Data[i]);
+        MPU6050_SendByte(*Data++);
         MPU6050_ReceiveAck();
     }
 
@@ -244,16 +203,11 @@ void MPU6050_Reg_Write_Many_Data(uint8_t RegAddress, uint8_t length, uint8_t *Da
 
 }
 
-
-/// @brief 这个函数会在I2C上 发送两个字节 接收一个字节 实现读寄存器数据的功能 发送[MPU6050_ADDRESS_W RegAddress] 读取到[Data]
-/// @param RegAddress 
-/// @param Data 
-/// @return 
-void MPU6050_Reg_Read_Many_Data(uint8_t RegAddress, uint8_t length, uint8_t *Data){
+void MPU6050_Reg_Read_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data){
 
     MPU6050_Start();
 
-    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    MPU6050_SendByte(MPU6050_Address);
     MPU6050_ReceiveAck();
     MPU6050_SendByte(RegAddress);
     MPU6050_ReceiveAck();
@@ -263,21 +217,18 @@ void MPU6050_Reg_Read_Many_Data(uint8_t RegAddress, uint8_t length, uint8_t *Dat
     MPU6050_Start();
     MPU6050_SendByte(MPU6050_ADDRESS_R);
     MPU6050_ReceiveAck();
-    for (uint8_t i = 0; i < length; i++)
-    {
-        Data[i] = MPU6050_ReceiveByte();
-        if (i < length - 1)
-        {
-            MPU6050_SendAck_Continue();
-        } else {
-            MPU6050_SendAck_Done();
-        }
-    }
 
+    while (length--)
+    {
+        *Data++ = MPU6050_ReceiveByte();
+        if(length) {MPU6050_SendAck_Continue();}
+        else       {MPU6050_SendAck_Done();}
+    }
+    
     MPU6050_Stop();
 
-    return Data;
 }
+
 
 /// @brief 这个函数会在I2C上 发送三个字节 实现写寄存器数据的功能 [MPU6050_ADDRESS_W RegAddress Data]
 /// @param RegAddress 

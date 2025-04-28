@@ -6,7 +6,8 @@
     "Core",
     "Drivers",
     "Hardware",
-    "Software"
+    "Software",
+    "Z_Others_migration"
   ],
   "virtualFolder": {
     "name": "<virtual_root>",
@@ -75,7 +76,8 @@
           "Drivers/CMSIS/Device/ST/STM32F1xx/Include",
           "Drivers/CMSIS/Include",
           "Software",
-          "Hardware"
+          "Hardware",
+          "Z_Others_migration"
         ],
         "libList": [],
         "defineList": [

@@ -723,7 +723,7 @@ int mpu_reg_dump(void)
             continue;
         if (i2c_read(st.hw->addr, ii, 1, &data))
             return -1;
-        log_i("%#5x: %#5x\r\n", ii, data);
+        // log_i("%#5x: %#5x\r\n", ii, data);
     }
     return 0;
 }
@@ -786,7 +786,7 @@ int mpu_init(void)
         else if (rev == 2)
             st.chip_cfg.accel_half = 0;
         else {
-            log_e("Unsupported software product rev %d.\n", rev);
+            // log_e("Unsupported software product rev %d.\n", rev);
             return -1;
         }
     } else {
@@ -794,11 +794,11 @@ int mpu_init(void)
             return -1;
         rev = data[0] & 0x0F;
         if (!rev) {
-            log_e("Product ID read as 0 indicates device is either "
-                "incompatible or an MPU3050.\n");
+            // log_e("Product ID read as 0 indicates device is either "
+                // "incompatible or an MPU3050.\n");
             return -1;
         } else if (rev == 4) {
-            log_i("Half sensitivity part found.\n");
+            // log_i("Half sensitivity part found.\n");
             st.chip_cfg.accel_half = 1;
         } else
             st.chip_cfg.accel_half = 0;
@@ -2954,7 +2954,6 @@ u8 mpu_dmp_init(void)
 {
     // 初始化寄存器
 	u8 res=0;
-	MPU_IIC_Init(); 	//初始化IIC总线
 	if(mpu_init()==0)	//初始化MPU6050
 	{	 
 		res=mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL);//设置所需要的传感器
@@ -2986,7 +2985,7 @@ u8 mpu_dmp_init(void)
 //yaw:航向角   精度:0.1°   范围:-180.0°<---> +180.0°
 //返回值:0,正常
 //    其他,失败
-u8 mpu_dmp_get_data(float *pitch,float *roll,float *yaw)
+u8 mpu_dmp_get_data(float *pitch, float *roll, float *yaw, float *accel_x, float *accel_y, float *accel_z)
 {
 	float q0=1.0f,q1=0.0f,q2=0.0f,q3=0.0f;
 	unsigned long sensor_timestamp;
@@ -3014,6 +3013,9 @@ u8 mpu_dmp_get_data(float *pitch,float *roll,float *yaw)
 		*pitch = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3;	// pitch
 		*roll  = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3;	// roll
 		*yaw   = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;	//yaw
+        *accel_x = accel[0] / 16384.0f;
+        *accel_y = accel[1] / 16384.0f;
+        *accel_z = accel[2] / 16384.0f;
 	}else return 2;
 	return 0;
 }

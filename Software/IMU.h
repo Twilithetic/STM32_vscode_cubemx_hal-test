@@ -5,7 +5,11 @@
 #include "stm32f1xx_hal.h"  // 根据实际芯片型号修改
 #include "MPU6050.h"
 #include "SH1122.h"
+#include <math.h>
 #include <stdio.h>
+
+// 四元数结构体
+
 
 
 

@@ -175,7 +175,12 @@ void MPU6050_Update_Data(void) {
 
 void MPU6050_Updata_DMP_Data(void){
     
-    mpu_dmp_get_data(&MPU6050_DMP_Data.pitch, &MPU6050_DMP_Data.roll, &MPU6050_DMP_Data.yaw);
+    mpu_dmp_get_data( &MPU6050_DMP_Data.pitch,
+                      &MPU6050_DMP_Data.roll,
+                      &MPU6050_DMP_Data.yaw,
+                      &MPU6050_DMP_Data.accel_x,
+                      &MPU6050_DMP_Data.accel_y,
+                      &MPU6050_DMP_Data.accel_z);
 
 
 }
@@ -185,38 +190,40 @@ void MPU6050_Updata_DMP_Data(void){
 //            寄存器读写 实现
 //******************************** */
 
-void MPU6050_Reg_Write_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data){
+uint8_t MPU6050_Reg_Write_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data){
 
     MPU6050_Start();
 
-    MPU6050_SendByte(MPU6050_Address);
-    MPU6050_ReceiveAck();
+    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    if(!MPU6050_ReceiveAck()) {return 1;}
     MPU6050_SendByte(RegAddress);
-    MPU6050_ReceiveAck();
+    if(!MPU6050_ReceiveAck()) {return 1;}
     while (length--)
     {
         MPU6050_SendByte(*Data++);
-        MPU6050_ReceiveAck();
+        if(!MPU6050_ReceiveAck()) {return 1;}
     }
 
     MPU6050_Stop();
 
+    return 0;
+
 }
 
-void MPU6050_Reg_Read_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data){
+uint8_t MPU6050_Reg_Read_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data){
 
     MPU6050_Start();
 
-    MPU6050_SendByte(MPU6050_Address);
-    MPU6050_ReceiveAck();
+    MPU6050_SendByte(MPU6050_ADDRESS_W);
+    if(!MPU6050_ReceiveAck()) {return 1;}
     MPU6050_SendByte(RegAddress);
-    MPU6050_ReceiveAck();
+    if(!MPU6050_ReceiveAck()) {return 1;}
 
     MPU6050_SCL_Clr();// Start要额外拉低一次 完成MPU6050_ReceiveAck的时序， MPU6050_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的MPU6050_SendByte也是在完成后CLK置1的
     delay_us(1);
     MPU6050_Start();
     MPU6050_SendByte(MPU6050_ADDRESS_R);
-    MPU6050_ReceiveAck();
+    if(!MPU6050_ReceiveAck()) {return 1;}
 
     while (length--)
     {
@@ -226,6 +233,8 @@ void MPU6050_Reg_Read_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, u
     }
     
     MPU6050_Stop();
+
+    return 0;
 
 }
 

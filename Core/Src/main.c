@@ -92,7 +92,8 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   LED_Init();
-  IMU_Init();
+  SH1122_Init();
+  MPU6050_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -122,7 +123,7 @@ int main(void)
     //PU6050_Test_ack();
     //IMU_test();
     IMU_test();
-    HAL_Delay(10);
+    //HAL_Delay(10);
     // IMU_Updata_Data();
 
 

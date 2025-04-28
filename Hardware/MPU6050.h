@@ -38,6 +38,9 @@ typedef struct {
     float pitch;
     float roll;
     float yaw;
+    float accel_x;
+    float accel_y;
+    float accel_z;
 } MPU6050_DMP_Data_typedef;
 
 
@@ -61,9 +64,9 @@ void MPU6050_Update_Data(void);
 
 void MPU6050_Updata_DMP_Data(void);
 
-void MPU6050_Reg_Write_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data);
+uint8_t MPU6050_Reg_Write_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data);
 
-void MPU6050_Reg_Read_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data);
+uint8_t MPU6050_Reg_Read_DMP_Lib_use(uint8_t MPU6050_Address, uint8_t RegAddress, uint8_t length, uint8_t *Data);
 
 void MPU6050_Start(void);
 

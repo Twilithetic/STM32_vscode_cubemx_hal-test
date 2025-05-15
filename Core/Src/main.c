@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Build_in-Led.h"
+#include "AS5600.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -81,13 +82,13 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  LED_Init();
+  Build_in_LED_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-
+  AS5600_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -97,7 +98,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    LED_Blink();
+    AS5600_Test_ack();
 
   }
   /* USER CODE END 3 */

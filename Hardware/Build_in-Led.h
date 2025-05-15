@@ -13,9 +13,8 @@
 
 
 // 初始化PC13引脚作为LED输出
-void LED_Init(void);
+void Build_in_LED_Init(void);
 
-// 控制LED闪烁
-void LED_Blink();
+void Build_in_Delay_us(uint32_t us);
 
 #endif /* LED_BLINK_H */    

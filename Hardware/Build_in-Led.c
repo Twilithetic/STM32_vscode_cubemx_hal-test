@@ -17,16 +17,18 @@ uint32_t tcnt = 0;
 
 void Build_in_Delay_us(uint32_t us)
 {
-    //uint32_t start_ticks2 = SysTick->VAL;
-     if (us == 0) return;
-    
+    if (us == 0) return;
+    // 记录开始时的计数值
+    uint32_t start_ticks = SysTick->VAL;
+
+    // 处理要延时实际要多少的 systick 并转换成 systick 来处理
     uint32_t reload = SysTick->LOAD;       // 71999
-    uint32_t ticks_us = HAL_RCC_GetHCLKFreq() / (1000 * 1000); // HAL_RCC_GetHCLKFreq()返回的是72000000 Hz 如果你在cubemx里配置的HCLK的时钟是72Mhz的话
+    uint32_t ticks_us = HAL_RCC_GetHCLKFreq() / 1000000; // HAL_RCC_GetHCLKFreq()返回的是72000000 Hz 如果你在cubemx里配置的HCLK的时钟是72Mhz的话
     
-    // 计算目标延时对应的SysTick计数值
+        // 计算目标延时对应的SysTick计数值
     uint32_t ticks_num = us * ticks_us;
     
-    // 处理溢出情况（超过1ms的延时）
+        // 处理溢出情况（超过1ms的延时）
     if (ticks_num > reload) {
         uint32_t ms = us / 1000;
         HAL_Delay(ms);  // 使用HAL库的毫秒延时处理整毫秒部分
@@ -35,8 +37,7 @@ void Build_in_Delay_us(uint32_t us)
         ticks_num = us * ticks_us;
     }
     
-    // 记录开始时的计数值
-    uint32_t start_ticks = SysTick->VAL;
+    //从进入到这大概 40 systick
     
     // 循环等待直到达到目标延时
     while (1) {
@@ -51,30 +52,7 @@ void Build_in_Delay_us(uint32_t us)
         }
         
         // 如果达到或超过目标延时，则退出
-        if (elapsed >= ticks_num) break; // 运行一次大概 28 systicks 或者56（溢出时）都不到1us（72systicks）,担心什么
-    }
+        if (elapsed >= ticks_num) break; // 运行一次大概 28 systicks 或者56（溢出时）都不到1us（72systicks）,担心什么,最快情况delay_us(1)是大概 68 systick
+    } 
 
-        // uint32_t HCLK_Freq_Mhz = HAL_RCC_GetHCLKFreq() / (1000 * 1000);
-    // uint32_t ticks = us *  HCLK_Freq; // 计算需要延时的总时钟数
-    // uint32_t reload = SysTick->LOAD;  // 获取SysTick的重装载值
-    // uint32_t told = SysTick->VAL;  // 记录当前计数值
-    
-    // while(1)
-    // {
-    //     uint32_t tnow = SysTick->VAL;  // 读取当前计数值
-    //     if(tnow != told)  // 如果计数值发生了变化
-    //     {
-    //         uint32_t diff;
-    //         if(tnow < told)  // 正常计数情况
-    //             diff = told - tnow;
-    //         else  // 发生了计数溢出的情况
-    //             diff = reload - tnow + told;
-                
-    //         tcnt += diff;  // 累计经过的时钟数
-    //         told = tnow;  // 更新上次记录值
-            
-    //         if(tcnt >= ticks)  // 如果累计时钟数达到了目标值
-    //             break;  // 退出循环，延时结束
-    //     }
-    // }
 }

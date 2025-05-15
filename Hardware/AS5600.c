@@ -30,9 +30,11 @@ void AS5600_Test_ack(){
     // AS5600_SDA_Set();
     // AS5600_Delay_us(1);
     AS5600_SCL_Set();
-    AS5600_Delay_us(100);
+    //HAL_Delay(100);
+    AS5600_Delay_us(20);
     AS5600_SCL_Clr();
-    AS5600_Delay_us(100);
+    //HAL_Delay(100);
+    AS5600_Delay_us(20);
     // AS5600_Start();
     // AS5600_SendByte(AS5600_ADDRESS_W);
     // if(AS5600_ReceiveAck()){

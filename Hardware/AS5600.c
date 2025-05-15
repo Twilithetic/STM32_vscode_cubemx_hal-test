@@ -27,24 +27,17 @@ void AS5600_Init(void)
 
 /// @brief 这个函数会在I2C上 发送一个字节 有Ack LED会亮 [AS5600_ADDRESS_W]
 void AS5600_Test_ack(){
-    // AS5600_SDA_Set();
-    // AS5600_Delay_us(1);
-    AS5600_SCL_Set();
-    //HAL_Delay(100);
-    AS5600_Delay_us(20);
-    AS5600_SCL_Clr();
-    //HAL_Delay(100);
-    AS5600_Delay_us(20);
-    // AS5600_Start();
-    // AS5600_SendByte(AS5600_ADDRESS_W);
-    // if(AS5600_ReceiveAck()){
-    //   Build_in_LED_Set();
-    // } else  
-    // {
-    //   Build_in_LED_Clr();
-    // }
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W);
+    if(AS5600_ReceiveAck()){
+      Build_in_LED_Set();
+    } else  
+    {
+      Build_in_LED_Clr();
+    }
     
-    // AS5600_Stop();
+    AS5600_Stop();
+    HAL_Delay(100);
 }
 
 /// @brief 在SCL 置1时 如果SDA从1到0 是开始时序（读取数据时 SCL同样SCL置1 但SDA不应该变化）

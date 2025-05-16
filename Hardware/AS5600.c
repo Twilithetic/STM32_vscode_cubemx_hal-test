@@ -1,6 +1,8 @@
 
 #include "AS5600.h"
 
+AS5600_Data_typedef AS5600_Data;
+
 void AS5600_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -18,9 +20,199 @@ void AS5600_Init(void)
     AS5600_SDA_Set();
     AS5600_SCL_Set();
 
+    _init_config();
+    // // 初始化AS5600用于FOC控制
+    // // 步骤1: 配置自动调零 (可选，需外部磁铁稳定)
+    // uint8_t zmco = AS5600_ReadByte(AS5600_ZMCO);
+    // if(zmco < 3) { // 最多可写3次
+    //     AS5600_WriteByte(AS5600_ZPOS_H, 0x00); // 零点位置高字节
+    //     AS5600_WriteByte(AS5600_ZPOS_L, 0x00); // 零点位置低字节
+    //     AS5600_WriteByte(AS5600_MPOS_H, 0x0F); // 最大位置高字节 (4095)
+    //     AS5600_WriteByte(AS5600_MPOS_L, 0xFF); // 最大位置低字节
+    //     AS5600_WriteByte(AS5600_MANG_H, 0x0F); // 最大角度高字节 (4095=360°)
+    //     AS5600_WriteByte(AS5600_MANG_L, 0xFF); // 最大角度低字节
+        
+    //     // 触发自动调零 (写ZMCO寄存器)
+    //     AS5600_WriteByte(AS5600_ZMCO, zmco + 1);
+    // }
+    
+    // // 步骤2: 配置CONF寄存器 (关键配置！)
+    // uint16_t conf = 0;
+    // // 配置参数说明:
+    // // - PWM频率: 11 = 10kHz (适用于高速电机)
+    // // - 输出模式: 00 = 模拟输出 (不适用于FOC，仅用于调试)
+    // // - 角度更新频率: 11 = 8192Hz (最高速，适合高速电机)
+    // // - 滤波设置: 11 = 快速滤波 (响应快，减少相位延迟)
+    // // - 慢速滤波: 000 = 禁用 (使用快速滤波)
+    // conf |= (1 << 15) | (1 << 14);  // PWM频率: 10kHz
+    // conf |= (0 << 12) | (0 << 11);  // 输出模式: I2C (00)
+    // conf |= (1 << 10) | (1 << 9);   // 角度更新频率: 8192Hz
+    // conf |= (1 << 7) | (1 << 6);    // 快速滤波: 最强设置
+    // conf |= (0 << 3) | (0 << 2) | (0 << 1); // 慢速滤波: 禁用
+    
+    // AS5600_WriteByte(AS5600_CONF_H, (conf >> 8) & 0xFF);
+    // AS5600_WriteByte(AS5600_CONF_L, conf & 0xFF);
+    
+    // // 步骤3: 验证磁场强度 (重要！)
+    // uint8_t status = AS5600_ReadByte(AS5600_STATUS);
+    // uint8_t agc = AS5600_ReadByte(AS5600_AGC);
+    // uint16_t magnitude = (AS5600_ReadByte(AS5600_MAGN_H) << 8) | 
+    //                      AS5600_ReadByte(AS5600_MAGN_L);
+    
+    // if(!(status & 0x20)) { // MD=1: 检测到磁铁
+    //     // 磁场强度正常范围: AGC=50-200, magnitude=500-4000
+    //     printf("Magnet detected: AGC=%d, Magnitude=%d\r\n", agc, magnitude);
+    // } else {
+    //     printf("ERROR: No magnet detected or magnetic field too weak!\r\n");
+    //     // 处理磁场异常 (增加磁铁强度或调整位置)
+    // }
+
 }
 
+void AS5600_Configure_ZERO_Angle_in_Hardware(void){
+    uint8_t DataL,DataH;
+//     步骤1 启动AS5600
+//     步骤2 将磁铁转到起始位置。
+//     步骤3 读取RAWANGLE寄存器。
+//           将RAWANGLE值写入ZPOS寄存器。
+//           等待至少1毫秒。
+//     步骤4 沿DIR引脚上的电平（GND为顺时针方向，VDD为逆时针方向）定义的方向旋转磁铁至停止位置。）
+//           旋转量必须大于18度。
+//     步骤5 读取RAWANGLE寄存器。
+//           将RAWANGLE值写入MPOS寄存器。
+//           等待至少1毫秒。
+    // 读取RAW ANGLE的值 高位11:8在 DataH, 低位7:0在DataL
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W);
+    AS5600_ReceiveAck();
+    AS5600_SendByte(AS5600_RAWANG_H);
+    AS5600_ReceiveAck();
 
+    AS5600_SCL_Clr();// Start要额外拉低一次 完成AS5600_ReceiveAck的时序， AS5600_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的AS5600_SendByte也是在完成后CLK置1的
+    AS5600_Delay_us(1);
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_R);
+    AS5600_ReceiveAck();
+    // AS5600_Voltage_L
+    DataH = AS5600_ReceiveByte();
+    AS5600_SendAck_Continue();
+    DataL = AS5600_ReceiveByte();
+    AS5600_SendAck_Done();
+    AS5600_Stop();
+
+    // 把RAW ANGEL写入 MPOS
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W);
+    AS5600_ReceiveAck();
+    AS5600_SendByte(AS5600_ZPOS_H);
+    AS5600_ReceiveAck();
+    AS5600_SendByte(DataH);
+    AS5600_ReceiveAck();
+    AS5600_SendByte(DataL);
+    AS5600_ReceiveAck();
+    AS5600_Stop();
+    
+    HAL_Delay(2);
+
+}
+
+void Updata_AS5600_Data(){
+    Updata_AGC_Data();
+    Updata_Angle_Data();
+}
+
+void Updata_Angle_Data(){
+    uint16_t Angle_Raw;
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W); // 发送 AS5600_ADDRESS_W
+    AS5600_ReceiveAck();
+    AS5600_SendByte(AS5600_ANGLE_H); // 发送 AS5600_ANGLE_H
+    AS5600_ReceiveAck();
+
+    AS5600_SCL_Clr();// Start要额外拉低一次 完成AS5600_ReceiveAck的时序， AS5600_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的AS5600_SendByte也是在完成后CLK置1的
+    AS5600_Delay_us(1);
+    AS5600_Start(); 
+    AS5600_SendByte(AS5600_ADDRESS_R); // 发送 AS5600_ADDRESS_R
+    AS5600_ReceiveAck();
+    // AS5600_ANGLE_H
+    Angle_Raw = AS5600_ReceiveByte(); // 接收 AS5600_ANGLE_H
+    AS5600_SendAck_Continue();
+    Angle_Raw = ( Angle_Raw << 8 ) | AS5600_ReceiveByte(); // 读取 AS5600_ANGLE_L
+    AS5600_SendAck_Done();
+    AS5600_Stop();
+
+    AS5600_Data.Angle = (float)( Angle_Raw * (360.0f / 4096.0f) );
+
+}
+
+void Updata_AGC_Data(){
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W); // 发送 AS5600_ADDRESS_W
+    AS5600_ReceiveAck();
+    AS5600_SendByte(AS5600_AGC); // 发送 AS5600_AGC
+    AS5600_ReceiveAck();
+
+    AS5600_SCL_Clr();// Start要额外拉低一次 完成AS5600_ReceiveAck的时序， AS5600_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的AS5600_SendByte也是在完成后CLK置1的
+    AS5600_Delay_us(1);
+    AS5600_Start(); 
+    AS5600_SendByte(AS5600_ADDRESS_R); // 发送 AS5600_ADDRESS_R
+    AS5600_ReceiveAck();
+    // AS5600_ANGLE_H
+    AS5600_Data.AGC = AS5600_ReceiveByte(); // 接收 AS5600_AGC
+    AS5600_SendAck_Done();
+    AS5600_Stop();
+}
+
+void _init_config(void){
+    _init_config_SF_FTH(); // 滤波器延迟最小 + 开启快速滤波(超过一定角度直接更新数据)
+
+
+
+}
+
+void _init_config_SF_FTH(void){
+    uint16_t Conf = 0;
+
+    // 读取RAW ANGLE的值 高位11:8在 DataH, 低位7:0在DataL
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W);// 发送 AS5600_ADDRESS_W
+    AS5600_ReceiveAck();
+    AS5600_SendByte(AS5600_CONF_H);// 发送 AS5600_CONF_H
+    AS5600_ReceiveAck();
+
+    AS5600_SCL_Clr();// Start要额外拉低一次 完成AS5600_ReceiveAck的时序， AS5600_ReceiveAck在CLK置1后就不动了而start又不会把先CLK置0，其他的AS5600_SendByte也是在完成后CLK置1的
+    AS5600_Delay_us(1);
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_R);// 发送 AS5600_ADDRESS_R
+    AS5600_ReceiveAck();
+    // AS5600_Voltage_L
+    Conf = AS5600_ReceiveByte();// 接收 AS5600_CONF_H
+    AS5600_SendAck_Continue();
+    Conf = (Conf << 8 ) | AS5600_ReceiveByte();// 接收 AS5600_CONF_L
+    AS5600_SendAck_Done();
+    AS5600_Stop();
+
+    Conf &= ~(0b11 << 8); // 清除 SF 位
+    Conf |= (0b11 << 8);  // 设置 SF = 11 延迟最低
+
+    // 设置快速滤波阈值为10 LSB（FTH=111）
+    Conf &= ~(0b001 << 10); // 清除 FTH 位
+    Conf |= (0b001 << 10); // 设置 FTH = 001 超过不到0.5度立即刷新
+
+
+    // 把RAW ANGEL写入 MPOS
+    AS5600_Start();
+    AS5600_SendByte(AS5600_ADDRESS_W); // 发送 AS5600_ADDRESS_W
+    AS5600_ReceiveAck();
+    AS5600_SendByte(AS5600_CONF_H);// 发送 AS5600_CONF_H
+    AS5600_ReceiveAck();
+    AS5600_SendByte((Conf >> 8) & 0xFF);// 发送 AS5600_CONF_H的数据
+    AS5600_ReceiveAck();
+    AS5600_SendByte(Conf & 0xFF);// 发送 AS5600_CONF_L的数据
+    AS5600_ReceiveAck();
+    AS5600_Stop();
+    
+}
 //******************************** */
 //            I2C 实现
 //******************************** */

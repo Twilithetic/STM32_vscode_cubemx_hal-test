@@ -24,6 +24,8 @@
 /* USER CODE BEGIN Includes */
 #include "Build_in-Led.h"
 #include "AS5600.h"
+#include "SH1122.h"
+#include "test.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -89,16 +91,20 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
   AS5600_Init();
+  SH1122_Init();
+  test_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  AS5600_Test_ack();
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    AS5600_Test_ack();
+    
+    test();
 
   }
   /* USER CODE END 3 */

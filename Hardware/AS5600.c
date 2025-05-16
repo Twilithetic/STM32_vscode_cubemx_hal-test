@@ -20,52 +20,13 @@ void AS5600_Init(void)
     AS5600_SDA_Set();
     AS5600_SCL_Set();
 
+    // 配置参数说明:
+    // - PWM频率: 11 = 10kHz (适用于高速电机)
+    // - 输出模式: 00 = 模拟输出 (不适用于FOC，仅用于调试)
+    // - 角度更新频率: 11 = 8192Hz (最高速，适合高速电机)
+    // - 滤波设置: 11 = 快速滤波 (响应快，减少相位延迟)
+    // - 慢速滤波: 000 = 禁用 (使用快速滤波)
     _init_config();
-    // // 初始化AS5600用于FOC控制
-    // // 步骤1: 配置自动调零 (可选，需外部磁铁稳定)
-    // uint8_t zmco = AS5600_ReadByte(AS5600_ZMCO);
-    // if(zmco < 3) { // 最多可写3次
-    //     AS5600_WriteByte(AS5600_ZPOS_H, 0x00); // 零点位置高字节
-    //     AS5600_WriteByte(AS5600_ZPOS_L, 0x00); // 零点位置低字节
-    //     AS5600_WriteByte(AS5600_MPOS_H, 0x0F); // 最大位置高字节 (4095)
-    //     AS5600_WriteByte(AS5600_MPOS_L, 0xFF); // 最大位置低字节
-    //     AS5600_WriteByte(AS5600_MANG_H, 0x0F); // 最大角度高字节 (4095=360°)
-    //     AS5600_WriteByte(AS5600_MANG_L, 0xFF); // 最大角度低字节
-        
-    //     // 触发自动调零 (写ZMCO寄存器)
-    //     AS5600_WriteByte(AS5600_ZMCO, zmco + 1);
-    // }
-    
-    // // 步骤2: 配置CONF寄存器 (关键配置！)
-    // uint16_t conf = 0;
-    // // 配置参数说明:
-    // // - PWM频率: 11 = 10kHz (适用于高速电机)
-    // // - 输出模式: 00 = 模拟输出 (不适用于FOC，仅用于调试)
-    // // - 角度更新频率: 11 = 8192Hz (最高速，适合高速电机)
-    // // - 滤波设置: 11 = 快速滤波 (响应快，减少相位延迟)
-    // // - 慢速滤波: 000 = 禁用 (使用快速滤波)
-    // conf |= (1 << 15) | (1 << 14);  // PWM频率: 10kHz
-    // conf |= (0 << 12) | (0 << 11);  // 输出模式: I2C (00)
-    // conf |= (1 << 10) | (1 << 9);   // 角度更新频率: 8192Hz
-    // conf |= (1 << 7) | (1 << 6);    // 快速滤波: 最强设置
-    // conf |= (0 << 3) | (0 << 2) | (0 << 1); // 慢速滤波: 禁用
-    
-    // AS5600_WriteByte(AS5600_CONF_H, (conf >> 8) & 0xFF);
-    // AS5600_WriteByte(AS5600_CONF_L, conf & 0xFF);
-    
-    // // 步骤3: 验证磁场强度 (重要！)
-    // uint8_t status = AS5600_ReadByte(AS5600_STATUS);
-    // uint8_t agc = AS5600_ReadByte(AS5600_AGC);
-    // uint16_t magnitude = (AS5600_ReadByte(AS5600_MAGN_H) << 8) | 
-    //                      AS5600_ReadByte(AS5600_MAGN_L);
-    
-    // if(!(status & 0x20)) { // MD=1: 检测到磁铁
-    //     // 磁场强度正常范围: AGC=50-200, magnitude=500-4000
-    //     printf("Magnet detected: AGC=%d, Magnitude=%d\r\n", agc, magnitude);
-    // } else {
-    //     printf("ERROR: No magnet detected or magnetic field too weak!\r\n");
-    //     // 处理磁场异常 (增加磁铁强度或调整位置)
-    // }
 
 }
 

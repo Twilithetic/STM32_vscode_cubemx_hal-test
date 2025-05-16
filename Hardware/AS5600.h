@@ -18,7 +18,7 @@
 typedef struct 
 {
     float Angle; // ex: 19.1度
-    uint8_t AGC; //ex: 128 反应安装的好不好的
+    uint8_t AGC; //ex: 128 磁场强度正常范围: AGC=50-200, magnitude=500-4000
 } AS5600_Data_typedef;
 
 extern AS5600_Data_typedef AS5600_Data;

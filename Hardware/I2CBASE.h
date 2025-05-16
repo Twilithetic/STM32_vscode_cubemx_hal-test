@@ -62,24 +62,24 @@ void I2CBASE_SendAck_Done();
 
 void I2CBASE_Stop(void);
 
-// AS5600寄存器地址定义
-#define AS5600_ZMCO       0x00  // 自动调零配置
-#define AS5600_ZPOS_H     0x01  // 零点位置高位
-#define AS5600_ZPOS_L     0x02  // 零点位置低位
-#define AS5600_MPOS_H     0x03  // 最大位置高位
-#define AS5600_MPOS_L     0x04  // 最大位置低位
-#define AS5600_MANG_H     0x05  // 最大角度高位
-#define AS5600_MANG_L     0x06  // 最大角度低位
-#define AS5600_CONF_H     0x07  // 配置寄存器高位
-#define AS5600_CONF_L     0x08  // 配置寄存器低位
-#define AS5600_RAWANG_H   0x0C  // 原始角度高位
-#define AS5600_RAWANG_L   0x0D  // 原始角度低位
-#define AS5600_ANGLE_H    0x0E  // 角度值高位（带动态校准）
-#define AS5600_ANGLE_L    0x0F  // 角度值低位
-#define AS5600_STATUS     0x0B  // 状态寄存器
-#define AS5600_AGC        0x1A  // 自动增益控制
-#define AS5600_MAGN_H     0x1B  // 磁场强度高位
-#define AS5600_MAGN_L     0x1C  // 磁场强度低位
+// I2CBASE寄存器地址定义
+#define I2CBASE_ZMCO       0x00  // 自动调零配置
+#define I2CBASE_ZPOS_H     0x01  // 零点位置高位
+#define I2CBASE_ZPOS_L     0x02  // 零点位置低位
+#define I2CBASE_MPOS_H     0x03  // 最大位置高位
+#define I2CBASE_MPOS_L     0x04  // 最大位置低位
+#define I2CBASE_MANG_H     0x05  // 最大角度高位
+#define I2CBASE_MANG_L     0x06  // 最大角度低位
+#define I2CBASE_CONF_H     0x07  // 配置寄存器高位
+#define I2CBASE_CONF_L     0x08  // 配置寄存器低位
+#define I2CBASE_RAWANG_H   0x0C  // 原始角度高位
+#define I2CBASE_RAWANG_L   0x0D  // 原始角度低位
+#define I2CBASE_ANGLE_H    0x0E  // 角度值高位（带动态校准）
+#define I2CBASE_ANGLE_L    0x0F  // 角度值低位
+#define I2CBASE_STATUS     0x0B  // 状态寄存器
+#define I2CBASE_AGC        0x1A  // 自动增益控制
+#define I2CBASE_MAGN_H     0x1B  // 磁场强度高位
+#define I2CBASE_MAGN_L     0x1C  // 磁场强度低位
 
 
 

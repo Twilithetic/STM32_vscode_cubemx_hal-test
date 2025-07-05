@@ -20,6 +20,7 @@
 #elif defined(STM32f103_version)
     // STM32平台相关定义
     #include "stm32f1xx_hal.h" // 根据你的芯片型号替换fxxx
+    #include "usart.h"
     // 引脚定义
     #define Build_in_LED_PORT GPIOC
     #define Build_in_LED_PIN GPIO_PIN_13
@@ -29,6 +30,7 @@
     // 延时计数器
     #define Build_in_Delay_us(us) _Build_in_Delay_us(us)
     #define Build_in_Delay_ms(ms) _Build_in_Delay_us((unsigned long long)(ms) * 1000)
+    #define Build_in_SCI_Print(str) _Build_in_SCI_Print(str)
 #else
     // 如果没有定义任何平台，给出错误提示
     #error "请定义USE_STM32或USE_TI来选择目标平台,例如#define TMS32F280049C_version"
@@ -38,5 +40,7 @@
 void Build_in_LED_Init(void);
 
 void _Build_in_Delay_us(uint32_t us);
+
+void _Build_in_SCI_Print(char *str);
 
 #endif /* LED_BLINK_H */    

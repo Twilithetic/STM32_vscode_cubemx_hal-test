@@ -54,7 +54,29 @@ void _Build_in_Delay_us(uint32_t us)
         if (elapsed >= ticks_num) break; // 运行一次大概 28 systicks 或者56（溢出时）都不到1us（72systicks）,担心什么,最快情况delay_us(1)是大概 68 systick
     }
 }
+
+
+// 封装NULL结尾字符串的发送函数
+void _Build_in_SCI_Print(char *str) {
+    if (str == NULL) return;
+    
+    uint8_t length = 0;
+    while (str[length] != '\0' && length < 255) { // 防止超长字符串
+        length++;
+    }
+    
+    // 仅当DMA不忙时启动新传输
+
+      // 启动DMA发送
+      HAL_UART_Transmit_DMA(&huart1, (uint8_t*)str, length);
+
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+
+}
+
 #else
-// 如果没有定义任何平台，给出错误提示
-#error "请定义USE_STM32或USE_TI来选择目标平台,例如#define TMS32F280049C_version"
+    // 如果没有定义任何平台，给出错误提示
+    #error "请定义USE_STM32或USE_TI来选择目标平台,例如#define TMS32F280049C_version"
 #endif

@@ -9,4 +9,5 @@ void test(){
     Build_in_Delay_ms(500);
     Build_in_LED_Clr();
     Build_in_Delay_ms(500);
+    Build_in_SCI_Print("\r11111\n");
 }

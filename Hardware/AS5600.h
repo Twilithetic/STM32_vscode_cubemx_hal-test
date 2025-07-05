@@ -54,7 +54,7 @@ void AS5600_Init(void);
 
 void AS5600_Configure_ZERO_Angle_in_Hardware(void);
 
-void Updata_AS5600_Data();
+void AS5600_Update_Data();
 
 void Updata_Angle_Data();
 

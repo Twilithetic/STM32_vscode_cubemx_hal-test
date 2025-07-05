@@ -30,6 +30,8 @@
     // 延时计数器
     #define Build_in_Delay_us(us) _Build_in_Delay_us(us)
     #define Build_in_Delay_ms(ms) _Build_in_Delay_us((unsigned long long)(ms) * 1000)
+    
+    // 串口DEBUG
     #define Build_in_SCI_Print(str) _Build_in_SCI_Print(str)
 #else
     // 如果没有定义任何平台，给出错误提示

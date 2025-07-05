@@ -5,6 +5,8 @@
 #include "Build_in-Led.h"
 #include "AS5600.h"
 #include <stdio.h>
+#include "FOC_Measure.h"
+#include "tim.h"
 
 void test_Init();
 

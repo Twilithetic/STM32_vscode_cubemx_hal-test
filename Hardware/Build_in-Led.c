@@ -44,7 +44,7 @@ void _Build_in_Delay_us(uint32_t us)
         uint32_t elapsed;
 
         // 计算已经过去的计数值（考虑计数器溢出）
-        if (current_ticks <= start_ticks) { // 注意 systick 是从7199 到0 下降的，这里是没有溢出的情况
+        if (current_ticks <= start_ticks) { // 注意 systick 是从71999 到0 下降的，这里是没有溢出的情况
             elapsed = start_ticks - current_ticks;
         } else { // 现在是溢出的
             elapsed = start_ticks + (reload - current_ticks);

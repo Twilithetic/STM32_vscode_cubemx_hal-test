@@ -98,10 +98,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    Build_in_LED_Set();
-    Build_in_Delay_us(1000 * 500);
-    Build_in_LED_Clr();
-    Build_in_Delay_us(1000 * 500);
     test();
   }
   /* USER CODE END 3 */

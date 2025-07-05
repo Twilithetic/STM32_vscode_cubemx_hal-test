@@ -1,20 +1,42 @@
 #ifndef LED_BLINK_H
 #define LED_BLINK_H
+#define STM32f103_version
+// 根据选择的平台编译不同的代码
+#ifdef TMS32F280049C_version
+    // TI平台相关定义
+    #include "driverlib.h"
+    #include "device.h"
+    #include "board.h"
+    // 引脚定义
+    #define Build_in_LED_PIN 23
+    // 引脚操作
+    #define Build_in_LED_Clr()  GPIO_writePin(Build_in_LED_PIN, 0)
+    #define Build_in_LED_Set()  GPIO_writePin(Build_in_LED_PIN, 1)
+    #define Build_in_LED_Toggle() GPIO_togglePin(Build_in_LED_PIN)
+    // 延时计数器
+    #define Build_in_Delay_us(us) DEVICE_DELAY_US(us)
+    #define Build_in_Delay_ms(ms) DEVICE_DELAY_US((unsigned long long)(ms) * 1000) // 将宏定义中的乘法结果转为 64 位整数（如 unsigned long long），确保运算不溢出
 
-#include "stm32f1xx_hal.h" // 根据你的芯片型号替换fxxx
-
-
-#define Build_in_LED_PORT GPIOC
-#define Build_in_LED_PIN GPIO_PIN_13
-
-
-#define Build_in_LED_Clr()  HAL_GPIO_WritePin(Build_in_LED_PORT, Build_in_LED_PIN, GPIO_PIN_RESET)
-#define Build_in_LED_Set()  HAL_GPIO_WritePin(Build_in_LED_PORT, Build_in_LED_PIN, GPIO_PIN_SET)
-
+#elif defined(STM32f103_version)
+    // STM32平台相关定义
+    #include "stm32f1xx_hal.h" // 根据你的芯片型号替换fxxx
+    // 引脚定义
+    #define Build_in_LED_PORT GPIOC
+    #define Build_in_LED_PIN GPIO_PIN_13
+    // 引脚操作
+    #define Build_in_LED_Clr()  HAL_GPIO_WritePin(Build_in_LED_PORT, Build_in_LED_PIN, GPIO_PIN_RESET)
+    #define Build_in_LED_Set()  HAL_GPIO_WritePin(Build_in_LED_PORT, Build_in_LED_PIN, GPIO_PIN_SET)
+    // 延时计数器
+    #define Build_in_Delay_us(us) _Build_in_Delay_us(us)
+    #define Build_in_Delay_ms(ms) _Build_in_Delay_us((unsigned long long)(ms) * 1000)
+#else
+    // 如果没有定义任何平台，给出错误提示
+    #error "请定义USE_STM32或USE_TI来选择目标平台,例如#define TMS32F280049C_version"
+#endif
 
 // 初始化PC13引脚作为LED输出
 void Build_in_LED_Init(void);
 
-void Build_in_Delay_us(uint32_t us);
+void _Build_in_Delay_us(uint32_t us);
 
 #endif /* LED_BLINK_H */    

@@ -1,8 +1,11 @@
 #include "test.h"
 
 void test_Init(){
+    // Init
     Build_in_LED_Init();
     AS5600_Init();
+    INA199A1_Init();
+    // 时钟开开开！
     HAL_TIM_Base_Start_IT(&htim4);
     HAL_TIM_Base_Start_IT(&htim3);
     __HAL_DBGMCU_FREEZE_TIM3(); // 断点不停止时钟

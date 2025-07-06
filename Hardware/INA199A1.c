@@ -3,10 +3,11 @@
 
 INA199A1_Data_typedef INA199A1_Data; 
 INA199A1_Bias_Data_typedef INA199A1_Bias_Data;
+uint16_t adcBuffer[3]; // 存储ADC原始数据的缓冲区
 void INA199A1_Init() {
     // 定义累加变量（用long防止溢出）
     long sum_sense1 = 0, sum_sense2 = 0, sum_sense3 = 0;
-    
+    HAL_ADC_Start_DMA(&hadc1, &adcBuffer, 3);
     // 关闭中断或延时，确保初始化不受干扰（可选）
     // Interrupt_disableGlobal();  // 若使用中断，先关闭
     
@@ -38,8 +39,6 @@ void INA199A1_Init() {
     //           INA199A1_Bias_Data.Sense_2_current_bias,
     //           INA199A1_Bias_Data.Sense_3_current_bias);
 }
-
-
 
 // 修改原数据更新函数：减去偏差（保持原逻辑）
 void INA199A_Update_Data() {

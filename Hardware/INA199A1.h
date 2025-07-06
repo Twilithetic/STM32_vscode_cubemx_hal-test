@@ -1,13 +1,11 @@
 #ifndef __INA199A1_H
 #define __INA199A1_H
 #include "Build_in-Led.h"
+#include "adc.h"
 
 
-#define INA199A1_Rshunt = 0.02; // 0.02Ω
-#define INA199A1_VREF = 1.65; // 1.65V
-
-extern float INA199A1_Rshunt; // 0.02Ω
-extern float INA199A1_VREF; // 1.65V
+#define INA199A1_Rshunt = 0.02 // 0.02Ω
+#define INA199A1_VREF = 1.65 // 1.65V
 
 typedef struct 
 {       

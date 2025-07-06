@@ -1,17 +1,20 @@
 #include "FOC_Measure.h"
 FOC_measured_data_typedef FOC_measured_data;
-
 void FOC_Measure_Update(){
-    FOC_Measure_AS5600_Update();
 
-
+    FOC_Measure_AS5600_Update(); // 0.9ms
+    // 计算速度
+    FOC_Measure_AS5600_Speed_Update();
 
 }
 
 const float ANGLE_THRESHOLD = 0.001f;// 0.001弧度（0.052°)
 int32_t circle_cnt = 0;    // 圈数（正转+1，反转-1）// 顺时针 + 逆时针 -
 float above_Machine_Rad = 0.0f;
+uint8_t AS5600_Rad_Updata_delay_ms_cnt;
 void FOC_Measure_AS5600_Update(){
+    if (AS5600_Rad_Updata_delay_ms_cnt) return;
+    AS5600_Rad_Updata_delay_ms_cnt = 1;
     AS5600_Update_Data();
     FOC_measured_data.Machine_Rad = (float)( AS5600_Data.Angle_Raw * (2 * M_PI / 4096.0f) );
     // 多圈累计功能
@@ -38,31 +41,22 @@ void FOC_Measure_AS5600_Update(){
     }
     // 否则：Angle_Rad_Total保持不变，不累计微小波动
     
-    // 计算速度
-    FOC_Measure_AS5600_Speed_Update();
 }
 
 static float last_total_rad = 0.0f; // 上一次的累计角度
-static uint32_t AS5600_current_Ticks;
-static uint32_t AS5600_above_Ticks;
-uint16_t AS5600_Speed_Updata_delay_ms_cnt;
+static uint32_t AS5600_now_us;
+static uint32_t AS5600_above_us;
+uint8_t AS5600_Speed_Updata_delay_ms_cnt;
+float dt_t;
 void FOC_Measure_AS5600_Speed_Update(){
     // 控制更新频率 太快 浮点数太小算不出 只能1PI 2PI的变
-    // if (AS5600_Speed_Updata_delay_ms_cnt) return;
-    // AS5600_Speed_Updata_delay_ms_cnt = 1;
-    //计算时间
-    uint32_t elapsed;
-    uint32_t reload   = SysTick->LOAD;  
-    uint32_t ticks_per_sec = HAL_RCC_GetHCLKFreq();
-    AS5600_current_Ticks = SysTick->VAL; 
-    if (AS5600_current_Ticks <= AS5600_above_Ticks)// 注意 systick 是从71999 到0 下降的，这里是没有溢出的情况
-    {
-        elapsed = AS5600_above_Ticks - AS5600_current_Ticks;
-    } else {
-        elapsed = AS5600_above_Ticks + (reload - AS5600_current_Ticks);
-    }  
-    float dt = ((float)elapsed / (float)ticks_per_sec); // dt 单位：second
+    if (AS5600_Speed_Updata_delay_ms_cnt) return;
+    AS5600_Speed_Updata_delay_ms_cnt = 1;
 
+    //计算时间
+    AS5600_now_us = Timestamp_us_Count(); // 注意 systick 是从71999 到0 下降的，这里是没有溢出的情况
+    float dt = Build_timestamp_us_Compute(AS5600_above_us, AS5600_now_us) / 1000000.0f; // dt 单位：second
+    dt_t = dt * 1000.0f;
     // 计算角度变化量
     float angle_delta = FOC_measured_data.Machine_Rad_Total - last_total_rad;
 
@@ -74,7 +68,8 @@ void FOC_Measure_AS5600_Speed_Update(){
 
     // 更新上一次的累计角度和时间
     last_total_rad = FOC_measured_data.Machine_Rad_Total;
-    AS5600_above_Ticks = AS5600_current_Ticks;
+    // 计算时间
+    AS5600_above_us = AS5600_now_us;
 }
 
 

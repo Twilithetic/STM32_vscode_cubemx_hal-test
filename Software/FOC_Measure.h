@@ -20,9 +20,13 @@ typedef struct
 } FOC_measured_data_typedef;
 
 extern FOC_measured_data_typedef FOC_measured_data;
+extern uint8_t AS5600_Speed_Updata_delay_ms_cnt;
+extern uint8_t AS5600_Rad_Updata_delay_ms_cnt;
 
 
 
+//debug
+extern float dt_t;
 
 #endif // !__FOC_INPUT_H
 

@@ -1,10 +1,12 @@
 #include "FOC_Measure.h"
 FOC_measured_data_typedef FOC_measured_data;
 void FOC_Measure_Update(){
-
+    // 获取角度
     FOC_Measure_AS5600_Update(); // 0.9ms
     // 计算速度
     FOC_Measure_AS5600_Speed_Update();
+    // 拿到电流采样
+    FOC_Measure_INA199A1_Update();
 
 }
 
@@ -70,6 +72,13 @@ void FOC_Measure_AS5600_Speed_Update(){
     last_total_rad = FOC_measured_data.Machine_Rad_Total;
     // 计算时间
     AS5600_above_us = AS5600_now_us;
+}
+
+void FOC_Measure_INA199A1_Update(){
+    INA199A_Update_Data();
+    FOC_measured_data.current_a = INA199A1_Data.Sense_1_current;
+    FOC_measured_data.current_b = INA199A1_Data.Sense_2_current;
+    FOC_measured_data.current_c = INA199A1_Data.Sense_3_current;
 }
 
 

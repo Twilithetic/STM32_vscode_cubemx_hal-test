@@ -3,11 +3,13 @@
 
 INA199A1_Data_typedef INA199A1_Data; 
 INA199A1_Bias_Data_typedef INA199A1_Bias_Data;
-uint16_t adcBuffer[3]; // 存储ADC原始数据的缓冲区
+uint16_t adcBuffer[3] = {0,0,0}; // 存储ADC原始数据的缓冲区
 void INA199A1_Init() {
     // 定义累加变量（用long防止溢出）
     long sum_sense1 = 0, sum_sense2 = 0, sum_sense3 = 0;
-    HAL_ADC_Start_DMA(&hadc1, &adcBuffer, 3);
+    HAL_ADCEx_Calibration_Start(&hadc1);
+    HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcBuffer, sizeof(adcBuffer) / sizeof(uint16_t));
     // 关闭中断或延时，确保初始化不受干扰（可选）
     // Interrupt_disableGlobal();  // 若使用中断，先关闭
     
@@ -42,6 +44,7 @@ void INA199A1_Init() {
 
 // 修改原数据更新函数：减去偏差（保持原逻辑）
 void INA199A_Update_Data() {
+
     _Updata_INA199A_Data_no_bias();  // 先采集原始数据
     // 减去偏差
     INA199A1_Data.Sense_3_current -= INA199A1_Bias_Data.Sense_3_current_bias;
@@ -52,16 +55,12 @@ void INA199A_Update_Data() {
 // 新函数：采集原始电流数据（不减去偏差）
 void _Updata_INA199A_Data_no_bias() {
     // 触发ADC转换
-    ADC_forceMultipleSOC(ADCA_BASE, ADC_FORCE_SOC0 | ADC_FORCE_SOC1 | ADC_FORCE_SOC2);
     
-    // 等待转换完成
-    while(!ADC_getInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1));
-    ADC_clearInterruptStatus(ADCA_BASE, ADC_INT_NUMBER1);
     
     // 读取原始数据（不减去偏差）
-    INA199A1_Data.Sense_3_current = INA199A1_ADC_To_Current(ADC_readResult(ADCARESULT_BASE, ADC_SOC_NUMBER0));
-    INA199A1_Data.Sense_2_current = INA199A1_ADC_To_Current(ADC_readResult(ADCARESULT_BASE, ADC_SOC_NUMBER1));
-    INA199A1_Data.Sense_1_current = INA199A1_ADC_To_Current(ADC_readResult(ADCARESULT_BASE, ADC_SOC_NUMBER2));
+    INA199A1_Data.Sense_1_current = INA199A1_ADC_To_Current(adcBuffer[0]);
+    INA199A1_Data.Sense_2_current = INA199A1_ADC_To_Current(adcBuffer[1]);
+    INA199A1_Data.Sense_3_current = INA199A1_ADC_To_Current(adcBuffer[2]);
 }
 
 float INA199A1_ADC_To_Current(uint16_t adc_Value){
@@ -79,3 +78,8 @@ float INA199A1_ADC_To_Current(uint16_t adc_Value){
     return INA199A1_Current;
 }
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+    if(hadc == &hadc1){
+
+    }
+}

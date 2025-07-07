@@ -3,6 +3,7 @@
 
 // 依赖的硬件驱动
 #include "AS5600.h"
+#include "INA199A1.h"
 // 数学
 #include "math.h"
 
@@ -35,3 +36,5 @@ void FOC_Measure_Update();
 void FOC_Measure_AS5600_Update();
 
 void FOC_Measure_AS5600_Speed_Update();
+
+void FOC_Measure_INA199A1_Update();

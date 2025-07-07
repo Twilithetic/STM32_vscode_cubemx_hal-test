@@ -4,8 +4,8 @@
 #include "adc.h"
 
 
-#define INA199A1_Rshunt = 0.02 // 0.02Ω
-#define INA199A1_VREF = 1.65 // 1.65V
+#define INA199A1_Rshunt 0.02 // 0.02Ω
+#define INA199A1_VREF 1.65 // 1.65V
 
 typedef struct 
 {       
@@ -28,8 +28,8 @@ extern INA199A1_Bias_Data_typedef INA199A1_Bias_Data;
 void INA199A1_Init();
 void INA199A_Update_Data();
 void _Updata_INA199A_Data_no_bias();
-
-
+float INA199A1_ADC_To_Current(uint16_t adc_Value);
+// void _Updata_INA199A_Data_no_bias();
 
 #endif // !__INA199A1_H
 

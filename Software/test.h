@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "FOC_Measure.h"
 #include "tim.h"
+#include "INA199A1.h"
 
 void test_Init();
 

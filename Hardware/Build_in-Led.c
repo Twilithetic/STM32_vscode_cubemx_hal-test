@@ -76,11 +76,12 @@ void _Build_in_SCI_Print(char *str) {
 /// @param start 
 /// @param now 
 /// @return 
-uint16_t Build_timestamp_us_Compute(uint16_t start, uint16_t now){ 
-    uint16_t elapsed_us;
-    if (now <= start){elapsed_us = start - now;} 
-    else {elapsed_us = start + (Timestamp_us_period - now);}  
-    return elapsed_us;
+uint16_t Build_in_Elapsed_us_Compute(uint16_t start, uint16_t now){ 
+    return (now <= start) ? (start - now) : (start + (Timestamp_us_period - now));
+    // uint16_t elapsed_us;
+    // if (now <= start){elapsed_us = start - now;} 
+    // else {elapsed_us = start + (Timestamp_us_period - now);}  
+    // return elapsed_us;
 }
 #else
     // 如果没有定义任何平台，给出错误提示

@@ -21,7 +21,6 @@
     // STM32平台相关定义
     #include "stm32f1xx_hal.h" // 根据你的芯片型号替换fxxx
     #include "usart.h"
-    #include "tim.h"
     // 引脚定义
     #define Build_in_LED_PORT GPIOC
     #define Build_in_LED_PIN GPIO_PIN_13
@@ -33,8 +32,8 @@
     #define Build_in_Delay_ms(ms) _Build_in_Delay_us((unsigned long long)(ms) * 1000)
     // 获取TIM3当前计数值（单位：us，假设定时器时钟为1MHz，1计数=1us）
     #define Timestamp_us_Count() (uwTick * 1000) + (SysTick->LOAD - SysTick->VAL) / (SystemCoreClock / 1e6) 
-    #define Timestamp_us_period 1000 * 0xFFFFFFFF //务必保持计数从start 高（71999）到 now 低（0）的顺序；
-    uint16_t Build_in_Elapsed_us_Compute(uint16_t start, uint16_t now);
+    #define Timestamp_us_period 1000 * 0xFFFFFFFF 
+    uint64_t Build_in_Elapsed_us_Compute(uint64_t start, uint64_t now);
     // 串口DEBUG
     #define Build_in_SCI_Print(str) _Build_in_SCI_Print(str)
 #else

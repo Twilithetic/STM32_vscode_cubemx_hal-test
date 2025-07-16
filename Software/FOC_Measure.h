@@ -23,4 +23,6 @@ extern struct FOC_measured_data_typedef FOC_measured_data;
 
 void FOC_Measure_Update();
 
+void FOC_Measure_AS5600_Update();
+
 #endif // !__FOC_INPUT_H

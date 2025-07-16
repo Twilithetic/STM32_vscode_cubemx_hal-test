@@ -76,8 +76,8 @@ void _Build_in_SCI_Print(char *str) {
 /// @param start 
 /// @param now 
 /// @return 
-uint16_t Build_in_Elapsed_us_Compute(uint16_t start, uint16_t now){ 
-    return (now <= start) ? (start - now) : (start + (Timestamp_us_period - now));
+uint64_t Build_in_Elapsed_us_Compute(uint64_t start, uint64_t now){ 
+    return (start <= now) ? (now - start) : (now + (Timestamp_us_period - start));
     // uint16_t elapsed_us;
     // if (now <= start){elapsed_us = start - now;} 
     // else {elapsed_us = start + (Timestamp_us_period - now);}  

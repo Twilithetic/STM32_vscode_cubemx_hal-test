@@ -18,11 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "adc.h"
-#include "dma.h"
 #include "rtc.h"
-#include "tim.h"
-#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -92,12 +88,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_USART1_UART_Init();
   MX_RTC_Init();
-  MX_TIM4_Init();
-  MX_TIM3_Init();
-  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   test_Init();
   /* USER CODE END 2 */
@@ -153,9 +144,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

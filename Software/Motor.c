@@ -23,13 +23,13 @@ void Motor_Control(){
   for (uint8_t i = 0; i < task_num; i++)
   {
     // 获取当前的系统时间（毫秒）
-    uint32_t now_time = HAL_GetTick();
-
+    uint32_t now_us = Timestamp_us_Count();
+    HAL_GetTick();
     // 检查当前时间是否达到任务的执行时间
-    if (now_time >= scheduler_task[i].period_us + scheduler_task[i].last_run)
+    if (now_us >= scheduler_task[i].period_us + scheduler_task[i].last_run)
     {
       // 更新任务的上次运行时间为当前时间
-      scheduler_task[i].last_run = now_time;
+      scheduler_task[i].last_run = now_us;
 
       // 执行任务函数
       scheduler_task[i].task_func();

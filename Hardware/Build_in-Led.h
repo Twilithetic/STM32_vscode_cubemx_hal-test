@@ -33,7 +33,7 @@
     #define Build_in_Delay_ms(ms) _Build_in_Delay_us((unsigned long long)(ms) * 1000)
     // 获取TIM3当前计数值（单位：us，假设定时器时钟为1MHz，1计数=1us）
     #define Timestamp_us_Count() __HAL_TIM_GET_COUNTER(&htim3) //务必保持计数从start 高（71999）到 now 低（0）的顺序；
-    #define Timestamp_us_period 0xFFFF
+    #define Timestamp_us_period SysTick->LOAD
     uint16_t Build_timestamp_us_Compute(uint16_t start, uint16_t now);
     // 串口DEBUG
     #define Build_in_SCI_Print(str) _Build_in_SCI_Print(str)

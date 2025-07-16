@@ -44,7 +44,7 @@ void _Build_in_Delay_us(uint32_t us)
         uint32_t elapsed;
 
         // 计算已经过去的计数值（考虑计数器溢出）
-        if (current_ticks <= start_ticks) { // 注意 systick 是从7199 到0 下降的，这里是没有溢出的情况
+        if (current_ticks <= start_ticks) { // 注意 systick 是从71999 到0 下降的，这里是没有溢出的情况
             elapsed = start_ticks - current_ticks;
         } else { // 现在是溢出的
             elapsed = start_ticks + (reload - current_ticks);
@@ -72,10 +72,16 @@ void _Build_in_SCI_Print(char *str) {
 
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-
+/// @brief 计数从start 高（71999）到 now 低（0）的顺序；
+/// @param start 
+/// @param now 
+/// @return 
+uint16_t Build_timestamp_us_Compute(uint16_t start, uint16_t now){ 
+    uint16_t elapsed_us;
+    if (now <= start){elapsed_us = start - now;} 
+    else {elapsed_us = start + (Timestamp_us_period - now);}  
+    return elapsed_us;
 }
-
 #else
     // 如果没有定义任何平台，给出错误提示
     #error "请定义USE_STM32或USE_TI来选择目标平台,例如#define TMS32F280049C_version"

@@ -8,9 +8,8 @@ void test_Init(){
 }
 
 void test(){
-    //Motor_Ctrl_task_run();
-    HAL_UART_Transmit_DMA(&huart1, (uint8_t *)"1111\n", 5);
-    Build_in_Delay_ms(500);
+    Motor_Ctrl_task_run();
+    //HAL_UART_Transmit_DMA(&huart1, (uint8_t *)"1111\n", 5);
 }
 
 void test_blink(){

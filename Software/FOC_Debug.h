@@ -9,13 +9,10 @@
 /// @brief .c维护的数据
 struct Debug_us_typedef
 {
+    uint64_t start_us;
     uint16_t us, avg_us, max_us;
-    uint16_t count, sum, start_us;
+    uint16_t count, sum; 
 };
-extern struct Debug_us_typedef measure_us_data;
-extern struct Debug_us_typedef PID_curr_to_vlot_us_data;
-extern struct Debug_us_typedef PID_speed_to_curr_us_data;
-extern struct Debug_us_typedef PID_rad_to_speed_us_data;
 struct FOC_debug_us_data_typedef
 {
     struct Debug_us_typedef measure_us_data;

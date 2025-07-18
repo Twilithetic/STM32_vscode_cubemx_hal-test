@@ -5,12 +5,12 @@ struct FOC_measured_data_typedef FOC_measured_data;
 
 void FOC_Measure_Update(){
     // 获取角度
-    FOC_Measure_AS5600_Update(); // 0.9ms
+    //FOC_Measure_AS5600_Update(); // 0.9ms
     // // 计算速度
     // FOC_Measure_AS5600_Speed_Update();
     // // 拿到电流采样
     // FOC_Measure_INA199A1_Update();
-
+    Build_in_Delay_ms(50);
 }
 
 const float ANGLE_THRESHOLD = 0.001f;// 0.001弧度（0.052°)

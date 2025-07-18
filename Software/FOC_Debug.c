@@ -1,13 +1,10 @@
 #include "FOC_Debug.h"
 // 这个.c文件维护的数据
 struct FOC_debug_us_data_typedef FOC_debug_us_data;
-struct Debug_us_typedef measure_us_data;
-struct Debug_us_typedef PID_curr_to_vlot_us_data;
-struct Debug_us_typedef PID_speed_to_curr_us_data;
-struct Debug_us_typedef PID_rad_to_speed_us_data;
 
 static char buffer_update[256];
 uint8_t Build_in_SCI_log_ms_cnt;
+/// @brief 发送FOC_debug_us_data的数据
 void FOC_Debug_UART(){
 
     snprintf(buffer_update, sizeof(buffer_update),

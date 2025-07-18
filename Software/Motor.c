@@ -6,7 +6,7 @@ struct Motor_typedef Motor= {7}; // 极对数：7
 uint8_t task_num;
 static Motor_Ctrl_t motor_task_list[] =
 {
-  {FOC_Measure_Update, &FOC_debug_us_data.measure_us_data, 1000, 0},
+  {FOC_Measure_Update, &FOC_debug_us_data.measure_us_data, 70, 0},
 // //  {Key_Task, 10, 0},
 //   {Oled_Task, 10, 0},
 //   {Uart_Task, 10, 0},

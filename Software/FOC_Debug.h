@@ -26,6 +26,8 @@ struct FOC_debug_us_data_typedef
 };
 extern struct FOC_debug_us_data_typedef FOC_debug_us_data;
 
+void FOC_Debug_UART();
+
 // #define FOC_DEBUG_FUNC_US(func, type) FOC_Debug_func_us(func, &FOC_debug_us_data.type##_us_data)
 void FOC_Debug_func_us(void (*target_func)(void), struct Debug_us_typedef *data);
 

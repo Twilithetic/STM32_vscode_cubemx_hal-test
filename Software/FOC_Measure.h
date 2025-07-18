@@ -3,7 +3,6 @@
 
 // 依赖的硬件驱动
 #include "AS5600.h"
-#include "INA199A1.h"
 // 数学
 #include "math.h"
 

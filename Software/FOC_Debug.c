@@ -8,20 +8,23 @@ uint8_t Build_in_SCI_log_ms_cnt;
 void FOC_Debug_UART(){
 
     snprintf(buffer_update, sizeof(buffer_update),
-        "\r%d,%d,%d,%d\n", 
-        FOC_debug_us_data.measure_us_data.us,
-        FOC_debug_us_data.PID_curr_to_vlot_us_data.us,
-        FOC_debug_us_data.PID_rad_to_speed_us_data.us,
-        FOC_debug_us_data.PID_speed_to_curr_us_data.us
+        "\r%d,%lu,%d,%lu,%d,%lu,%d,%lu\n", 
+        FOC_debug_us_data.measure_us_data.us, FOC_debug_us_data.measure_us_data.period_us, 
+        FOC_debug_us_data.PID_curr_to_vlot_us_data.us, FOC_debug_us_data.PID_curr_to_vlot_us_data.period_us,
+        FOC_debug_us_data.PID_rad_to_speed_us_data.us, FOC_debug_us_data.PID_rad_to_speed_us_data.period_us,
+        FOC_debug_us_data.PID_speed_to_curr_us_data.us, FOC_debug_us_data.PID_speed_to_curr_us_data.period_us
     );
-    Build_in_SCI_Print(buffer_update);
+    Build_in_SCI_Print(buffer_update);// 怎么看 如果task周期是
 }
 
 // 测量函数运行周期并更新调试数据（核心函数）
-inline void FOC_Debug_func_us(void (*target_func)(void), struct Debug_us_typedef* data) {
+inline void FOC_Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef* data) {
+    uint64_t start_us = Timestamp_us_Count();
     target_func();
+    if (data == NULL) {return;}
+    
     uint64_t now_us = Timestamp_us_Count();
-    uint64_t elapsed_us = Build_in_Elapsed_us_Compute(data->start_us, now_us);
+    uint64_t elapsed_us = Build_in_Elapsed_us_Compute(start_us, now_us);
     
     // 更新测量数据
     data->us = (uint16_t)elapsed_us;
@@ -43,6 +46,7 @@ inline void FOC_Debug_func_us(void (*target_func)(void), struct Debug_us_typedef
     if (elapsed_us > data->max_us) {
         data->max_us = (uint16_t)elapsed_us;
     }
-
-    data->start_us = now_us;
+    // 更新周期
+    data->period_us = period_us;
+    
 }

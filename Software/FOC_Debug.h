@@ -8,8 +8,7 @@
 #include <stdio.h>
 /// @brief .c维护的数据
 struct Debug_us_typedef
-{
-    uint64_t start_us;
+{   uint32_t period_us;
     uint16_t us, avg_us, max_us;
     uint16_t count, sum; 
 };
@@ -26,7 +25,7 @@ extern struct FOC_debug_us_data_typedef FOC_debug_us_data;
 void FOC_Debug_UART();
 
 // #define FOC_DEBUG_FUNC_US(func, type) FOC_Debug_func_us(func, &FOC_debug_us_data.type##_us_data)
-void FOC_Debug_func_us(void (*target_func)(void), struct Debug_us_typedef *data);
+void FOC_Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef *data);
 
 #endif // !__MOTOR_DEBUG_H
 

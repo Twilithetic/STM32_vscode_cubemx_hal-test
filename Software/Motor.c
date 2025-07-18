@@ -6,7 +6,7 @@ struct Motor_typedef Motor= {7}; // 极对数：7
 uint8_t task_num;
 static Motor_Ctrl_t motor_task_list[] =
 {
-  {FOC_Measure_Update, &FOC_debug_us_data.measure_us_data, 70, 0},
+  {FOC_Measure_Update, &FOC_debug_us_data.measure_us_data, 100 * 1e3, 0},
 // //  {Key_Task, 10, 0},
 //   {Oled_Task, 10, 0},
 //   {Uart_Task, 10, 0},
@@ -14,13 +14,13 @@ static Motor_Ctrl_t motor_task_list[] =
 // //  {Gray_Task, 10, 0},
 //   {Motor_Task, 10, 0},
 //   {Encoder_Task, 100, 0},
+  {FOC_Debug_UART, NULL, 30 * 1e3, 0},
 };
 
 void Motor_Init(){
     task_num = sizeof(motor_task_list) / sizeof(Motor_Ctrl_t); // 数组大小 / 数组成员大小 = 数组元素个数
 }
 
-uint8_t is_debug = 1;
 void Motor_Ctrl_task_run(){
   // 遍历任务数组中的所有任务
   for (uint8_t i = 0; i < task_num; i++)
@@ -34,13 +34,9 @@ void Motor_Ctrl_task_run(){
       motor_task_list[i].last_start = now_us;
 
       // 执行任务函数
-      FOC_Debug_func_us(motor_task_list[i].task_func, motor_task_list[i].debug_data);
+      FOC_Debug_func_us(motor_task_list[i].task_func, motor_task_list[i].period_us, motor_task_list[i].debug_data);
     }
   }
-
-  if (is_debug) {FOC_Debug_UART();}
-
-  
 }
 
 

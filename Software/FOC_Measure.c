@@ -10,7 +10,7 @@ void FOC_Measure_Update(){
     // FOC_Measure_AS5600_Speed_Update();
     // // 拿到电流采样
     // FOC_Measure_INA199A1_Update();
-    Build_in_Delay_ms(40);
+    Build_in_Delay_ms(10);
 }
 
 const float ANGLE_THRESHOLD = 0.001f;// 0.001弧度（0.052°)

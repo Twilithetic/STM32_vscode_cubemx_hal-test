@@ -35,7 +35,12 @@
     #define Timestamp_us_period 1000 * 0xFFFFFFFF 
     uint64_t Build_in_Elapsed_us_Compute(uint64_t start, uint64_t now);
     // 串口DEBUG
-    #define Build_in_SCI_Print(str) _Build_in_SCI_Print(str)
+    // 定义函数指针类型
+    extern char UART1_TX_buffer[256];
+    extern char UART1_RX_buffer[256];
+    #define Build_in_SCI_Transmit_Print(str) _Build_in_SCI_Print(str)
+    typedef void (*UART_RxCallbackTypeDef)(UART_HandleTypeDef *huart, uint16_t Size);//接收的CallBack函数
+    extern UART_RxCallbackTypeDef Build_in_SCI_Receive_Proc; 
 #else
     // 如果没有定义任何平台，给出错误提示
     #error "请定义USE_STM32或USE_TI来选择目标平台,例如#define TMS32F280049C_version"

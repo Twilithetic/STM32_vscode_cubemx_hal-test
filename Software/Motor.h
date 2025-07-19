@@ -16,13 +16,14 @@ typedef struct Motor_typedef
 extern struct Motor_typedef Motor;
 
 // 任务结构体
-typedef struct Motor_Ctrl_t
+typedef struct Motor_Task_Ctrl_t
 {
     void (*task_func)(void);  // 任务函数指针
     struct Debug_us_typedef* debug_data;  // 调试数据指针
     uint32_t period_us;         // 执行周期（毫秒）
     uint32_t last_start;        // 上次执行时间（初始化为 0，每次运行时刷新）
-} Motor_Ctrl_t;
+} Motor_Task_Ctrl_t;
+extern Motor_Task_Ctrl_t motor_task_list[];
 
 #endif // !__MOTOR__H
 

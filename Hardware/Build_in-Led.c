@@ -1,5 +1,7 @@
 #include "Build_in-Led.h"
-
+char UART1_TX_buffer[256];
+char UART1_RX_buffer[256];
+UART_RxCallbackTypeDef Build_in_SCI_Receive_Proc = NULL; 
 #ifdef STM32f103_version
 // 初始化PC13引脚作为LED输出
 void Build_in_LED_Init(void)
@@ -70,6 +72,13 @@ void _Build_in_SCI_Print(char *str) {
       // 启动DMA发送
     HAL_UART_Transmit_DMA(&huart1, (uint8_t*)str, length);
 
+}
+
+// 重写 HAL 库的弱定义回调函数，在其中调用你的函数
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
+    if (Build_in_SCI_Receive_Proc != NULL) {
+        Build_in_SCI_Receive_Proc(huart, Size); // 调用你的函数
+    }
 }
 
 /// @brief 计数从start 高（71999）到 now 低（0）的顺序；

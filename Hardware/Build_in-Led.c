@@ -68,7 +68,7 @@ void _Build_in_SCI_Print(char *str) {
     }
     
     // 仅当DMA不忙时启动新传输
-    while(huart1.gState != HAL_UART_STATE_READY);
+    //while(huart1.gState != HAL_UART_STATE_READY);
       // 启动DMA发送
     HAL_UART_Transmit_DMA(&huart1, (uint8_t*)str, length);
 

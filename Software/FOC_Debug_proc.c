@@ -18,7 +18,8 @@ void Mode_Command(uint8_t mode_int){
 
 void Unknown_Command(){
 
-
+    sniprintf(UART1_TX_buffer, sizeof(UART1_TX_buffer), "Unknown Command{%s}\n", UART1_RX_buffer);
+    Build_in_SCI_Transmit_Print(UART1_TX_buffer);
 }
 
 void Period_Set_Command(uint8_t task_id, uint32_t period_us){

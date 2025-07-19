@@ -70,10 +70,10 @@ void FOC_Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size){
     UART1_RX_buffer[Size] = '\0';  // 手动添加字符串结束符
 
     // 2. 去除字符串前的空格（比如" mode 3"→"mode 3"）
-    char *cmd_str = UART1_TX_buffer;
-    while (*cmd_str && isspace((unsigned char)*cmd_str)) {
-        cmd_str++;  // 跳过前导空格
-    }
+    char *cmd_str = UART1_RX_buffer;
+    // while (*cmd_str && isspace((unsigned char)*cmd_str)) {
+    //     cmd_str++;  // 跳过前导空格
+    // }
 
     // 3. 解析命令（"mode X" 或 "test X"）
     // 3.1 匹配 "mode X" 指令（X为数字）
@@ -81,11 +81,7 @@ void FOC_Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size){
         char *param_str = cmd_str + 5;  // 参数部分（如"1"）
         int mode_int = atoi(param_str);    // 字符串转整数（"1"→1）
         Mode_Command(mode_int);            // 执行mode指令
-        return;
-    }
-
-    // 解析 "period X Y" 命令
-    if (strncmp(cmd_str, "period ", 7) == 0) {
+    } else if (strncmp(cmd_str, "period ", 7) == 0) {// 解析 "period X Y" 命令
         char *task_id_str = cmd_str + 7;  // 任务ID部分（如"0"）
         char *period_str = strchr(task_id_str, ' ');  // 查找第二个空格
         
@@ -99,10 +95,12 @@ void FOC_Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size){
             
             // 修改对应任务的周期
             Period_Set_Command(task_id, period);
-            return;
         }
+    } else {
+        // 3.3 未知指令
+        Unknown_Command();
     }
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)UART1_RX_buffer, sizeof(UART1_RX_buffer));
+    
 
-    // 3.3 未知指令
-    Unknown_Command();
 }

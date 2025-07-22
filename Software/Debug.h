@@ -10,14 +10,14 @@
 #include <ctype.h>  // 用于处理空格（isspace函数）
 #include <stdlib.h> //atoi
 // 次模块依赖
-#include "FOC_Debug_proc.h"
+#include "Debug_proc.h"
 /// @brief .c维护的数据
 struct Debug_us_typedef
 {   uint32_t period_us;
     uint16_t us, avg_us, max_us;
     uint16_t count, sum; 
 };
-struct FOC_debug_us_data_typedef
+struct Debug_Data_typedef
 {
     struct Debug_us_typedef measure_us_data;
     struct Debug_us_typedef PID_curr_to_vlot_us_data;
@@ -25,17 +25,17 @@ struct FOC_debug_us_data_typedef
     struct Debug_us_typedef PID_rad_to_speed_us_data;
 
 };
-extern struct FOC_debug_us_data_typedef FOC_debug_us_data;
+extern struct Debug_Data_typedef Debug_Data;
 
-void FOC_Debug_Init();
+void Debug_Init();
 
-void FOC_Debug_UART_Print();
+void Debug_UART_Print();
 
-// #define FOC_DEBUG_FUNC_US(func, type) FOC_Debug_func_us(func, &FOC_debug_us_data.type##_us_data)
-void FOC_Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef *data);
+// #define FOC_DEBUG_FUNC_US(func, type) Debug_func_us(func, &Debug_Data.type##_us_data)
+void Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef *data);
 
 //#define HAL_UARTEx_RxEventCallback FOC_Debug_UART_Reviev_proc // 用宏将 HAL_UARTEx_RxEventCallback 替换为你自己的函数名
-void FOC_Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size);
+void Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size);
 
 #endif // !__MOTOR_DEBUG_H
 

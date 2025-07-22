@@ -1,30 +1,30 @@
-#include "FOC_Debug.h"
+#include "Debug.h"
 // 这个.c文件维护的数据
-struct FOC_debug_us_data_typedef FOC_debug_us_data;
+struct Debug_Data_typedef Debug_Data;
 
 
 uint8_t Build_in_SCI_log_ms_cnt;
 
-void FOC_Debug_Init(){
+void Debug_Init(){
     HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)UART1_RX_buffer, sizeof(UART1_RX_buffer));
-    Build_in_SCI_Receive_Proc = FOC_Debug_UART_Receive_proc;
+    Build_in_SCI_Receive_Proc = Debug_UART_Receive_proc;
 }
 
 /// @brief 发送FOC_debug_us_data的数据
-void FOC_Debug_UART_Print(){
+void Debug_UART_Print(){
 
     snprintf(UART1_TX_buffer, sizeof(UART1_TX_buffer),
         "\r%d,%lu,%d,%lu,%d,%lu,%d,%lu\n", 
-        FOC_debug_us_data.measure_us_data.us, FOC_debug_us_data.measure_us_data.period_us, 
-        FOC_debug_us_data.PID_curr_to_vlot_us_data.us, FOC_debug_us_data.PID_curr_to_vlot_us_data.period_us,
-        FOC_debug_us_data.PID_rad_to_speed_us_data.us, FOC_debug_us_data.PID_rad_to_speed_us_data.period_us,
-        FOC_debug_us_data.PID_speed_to_curr_us_data.us, FOC_debug_us_data.PID_speed_to_curr_us_data.period_us
+        Debug_Data.measure_us_data.us, Debug_Data.measure_us_data.period_us, 
+        Debug_Data.PID_curr_to_vlot_us_data.us, Debug_Data.PID_curr_to_vlot_us_data.period_us,
+        Debug_Data.PID_rad_to_speed_us_data.us, Debug_Data.PID_rad_to_speed_us_data.period_us,
+        Debug_Data.PID_speed_to_curr_us_data.us, Debug_Data.PID_speed_to_curr_us_data.period_us
     );
     Build_in_SCI_Transmit_Print(UART1_TX_buffer);// 怎么看 如果task周期是
 }
 
 // 测量函数运行周期并更新调试数据（核心函数）
-inline void FOC_Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef* data) {
+inline void Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef* data) {
     uint64_t start_us = Timestamp_us_Count();
     target_func();
     if (data == NULL) {return;}
@@ -59,7 +59,7 @@ inline void FOC_Debug_func_us(void (*target_func)(void), uint32_t period_us, str
 
 
 
-void FOC_Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size){
+void Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size){
     if (huart != &huart1) return;  // 只处理USART1的数据
     
     // 1. 将接收到的字节转为C字符串（添加结束符'\0'）

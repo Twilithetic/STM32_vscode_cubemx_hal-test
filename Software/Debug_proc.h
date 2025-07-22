@@ -5,7 +5,7 @@
 #include "stm32f1xx_hal.h"  // 根据实际芯片型号修改
 #include "Build_in-Led.h"
 // 子模块依赖
-#include "Motor.h"
+#include "Scheduler.h"
 
 
 #endif // !___FOC_DEBUG_PROC_H

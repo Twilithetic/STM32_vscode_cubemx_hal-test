@@ -1,7 +1,6 @@
 #include "Build_in-Led.h"
-char UART1_TX_buffer[256];
-char UART1_RX_buffer[256];
-UART_RxCallbackTypeDef Build_in_SCI_Receive_Proc = NULL; 
+
+
 #ifdef STM32f103_version
 // 初始化PC13引脚作为LED输出
 void Build_in_LED_Init(void)
@@ -59,7 +58,7 @@ void _Build_in_Delay_us(uint32_t us)
 
 
 // 封装NULL结尾字符串的发送函数
-void _Build_in_SCI_Print(char *str) {
+void _Build_in_UART_Print(char *str) {
     if (str == NULL) return;
     
     uint8_t length = 0;
@@ -71,9 +70,34 @@ void _Build_in_SCI_Print(char *str) {
     //while(huart1.gState != HAL_UART_STATE_READY);
       // 启动DMA发送
     HAL_UART_Transmit_DMA(&huart1, (uint8_t*)str, length);
-
 }
 
+char UART1_TX_buffer[256];
+void _Build_in_UART_Printf(const char *format, ...) {
+    if (format == NULL) {return;}
+    
+    va_list args;
+    int len;
+    
+    // 格式化字符串到缓冲区
+    va_start(args, format);
+    len = vsnprintf(UART1_TX_buffer, sizeof(UART1_TX_buffer), format, args);
+    va_end(args);
+    
+    // 检查格式化结果
+    if (len <= 0 || len >= sizeof(UART1_TX_buffer)) {
+        // 超出缓冲区大小或格式化失败，发送错误信息
+        const char *error_msg = "UART printf buffer overflow\n";
+        HAL_UART_Transmit_DMA(&huart1, (uint8_t*)error_msg, strlen(error_msg));
+        return;
+    }
+    
+    // 启动DMA发送
+    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)UART1_TX_buffer, len);
+}
+
+char UART1_RX_buffer[256];
+UART_RxCallbackTypeDef Build_in_SCI_Receive_Proc = NULL; 
 // 重写 HAL 库的弱定义回调函数，在其中调用你的函数
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
     if (Build_in_SCI_Receive_Proc != NULL) {

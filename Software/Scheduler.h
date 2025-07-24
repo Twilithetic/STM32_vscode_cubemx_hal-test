@@ -8,6 +8,9 @@
 // 其他模块依赖
 #include "Debug.h"
 
+//硬件模块依赖
+#include "JC2804.h"
+
 typedef struct Scheduler_typedef
 {
     uint8_t Pole_Pairs;

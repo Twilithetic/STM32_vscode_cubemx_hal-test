@@ -18,9 +18,13 @@
     #define Build_in_Delay_ms(ms) DEVICE_DELAY_US((unsigned long long)(ms) * 1000) // 将宏定义中的乘法结果转为 64 位整数（如 unsigned long long），确保运算不溢出
 
 #elif defined(STM32f103_version)
-    // STM32平台相关定义
+    // 芯片依赖
     #include "stm32f1xx_hal.h" // 根据你的芯片型号替换fxxx
     #include "usart.h"
+    // 标准库依赖
+    #include <stdarg.h>
+    #include <stdio.h>
+    #include <string.h>
     // 引脚定义
     #define Build_in_LED_PORT GPIOC
     #define Build_in_LED_PIN GPIO_PIN_13
@@ -34,11 +38,12 @@
     #define Timestamp_us_Count() (uwTick * 1000) + (SysTick->LOAD - SysTick->VAL) / (SystemCoreClock / 1e6) 
     #define Timestamp_us_period 1000 * 0xFFFFFFFF 
     uint64_t Build_in_Elapsed_us_Compute(uint64_t start, uint64_t now);
-    // 串口DEBUG
-    // 定义函数指针类型
+    // 串口DEBUG发送
     extern char UART1_TX_buffer[256];
+    #define Build_in_UART_Print(str) _Build_in_UART_Print(str) // 使用例子：     snprintf(UART1_TX_buffer, sizeof(UART1_TX_buffer),"\r%dn", data);
+    #define Build_in_UART_Printf(...) _Build_in_UART_Printf(__VA_ARGS__)
+    // 串口DEBUG接收
     extern char UART1_RX_buffer[256];
-    #define Build_in_SCI_Transmit_Print(str) _Build_in_SCI_Print(str)
     typedef void (*UART_RxCallbackTypeDef)(UART_HandleTypeDef *huart, uint16_t Size);//接收的CallBack函数
     extern UART_RxCallbackTypeDef Build_in_SCI_Receive_Proc; 
 #else
@@ -51,8 +56,8 @@ void Build_in_LED_Init(void);
 
 void _Build_in_Delay_us(uint32_t us);
 
-void _Build_in_SCI_Print(char *str);
+void _Build_in_UART_Print(char *str);
 
-
+void _Build_in_UART_Printf(const char *format, ...);
 
 #endif /* LED_BLINK_H */    

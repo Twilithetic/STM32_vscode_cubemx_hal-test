@@ -11,17 +11,16 @@ void Debug_Init(){
 }
 
 /// @brief 发送FOC_debug_us_data的数据
-void Debug_UART_Print(){
-
-    snprintf(UART1_TX_buffer, sizeof(UART1_TX_buffer),
+void Debug_UART_Print(){  
+    Build_in_UART_Printf(
         "\r%d,%lu,%d,%lu,%d,%lu,%d,%lu\n", 
         Debug_Data.measure_us_data.us, Debug_Data.measure_us_data.period_us, 
         Debug_Data.PID_curr_to_vlot_us_data.us, Debug_Data.PID_curr_to_vlot_us_data.period_us,
         Debug_Data.PID_rad_to_speed_us_data.us, Debug_Data.PID_rad_to_speed_us_data.period_us,
         Debug_Data.PID_speed_to_curr_us_data.us, Debug_Data.PID_speed_to_curr_us_data.period_us
     );
-    Build_in_SCI_Transmit_Print(UART1_TX_buffer);// 怎么看 如果task周期是
 }
+
 
 // 测量函数运行周期并更新调试数据（核心函数）
 inline void Debug_func_us(void (*target_func)(void), uint32_t period_us, struct Debug_us_typedef* data) {

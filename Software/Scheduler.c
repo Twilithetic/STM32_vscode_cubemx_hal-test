@@ -6,7 +6,7 @@ struct Scheduler_typedef Motor= {7}; // 极对数：7
 uint8_t task_num;
 Scheduler_Task Scheduler_task_list[] =
 {
-  // {FOC_Measure_Update, &Debug_Data.measure_us_data, 100 * 1e3, 0},
+  //{test_message_TX, &Debug_Data.measure_us_data, 100 * 1e3, 0},
   {Debug_UART_Print, NULL, 30 * 1e3, 0},
 };
 

@@ -16,7 +16,7 @@ extern JC2804_Data JC2804_Data_list[];
 
 
 
-
+extern uint8_t JC2804_is_test;
 
 
 void JC2804_Init();

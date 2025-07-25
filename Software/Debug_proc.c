@@ -2,13 +2,13 @@
 char another_str[128] = "othrtstr"; 
 void Mode_Command(uint8_t mode_int){
     switch (mode_int){
+        case 0:
+            /* mode 1执行的相关代码 */
+            JC2804_is_test = 1;
+            break;
         case 1:
             /* mode 1执行的相关代码 */
-
-            break;
-        case 2:
-            /* mode 1执行的相关代码 */
-
+            JC2804_is_test = 0;
             break;
         default:
             break;

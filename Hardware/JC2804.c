@@ -97,10 +97,14 @@ void test_JC2804_loopback(){
 
 float test_data[] = {90, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90}; 
 uint8_t cnt;
+uint8_t JC2804_is_test = 1;
 void test_PID(){
+    if (!JC2804_is_test){return;}
+    
     if (cnt >= (sizeof(test_data) / sizeof(float)) - 1){cnt = 0;}
     
     JC2804_Data_list[0].angle = test_data[cnt];
+    JC2804_Data_list[1].angle = test_data[cnt];
     cnt++;
 }
 // 接收中断回调（可选，替代轮询）

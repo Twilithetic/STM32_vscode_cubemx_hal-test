@@ -6,6 +6,10 @@
 #include "Build_in-Led.h"
 // 子模块依赖
 #include "Scheduler.h"
+// 硬件模块依赖
+#include "JC2804.h"
+
+extern char another_str[128]; 
 
 
 #endif // !___FOC_DEBUG_PROC_H
@@ -15,3 +19,5 @@ void Mode_Command(uint8_t mode_int);
 void Unknown_Command();
 
 void Period_Set_Command(uint8_t task_id, uint32_t period_us);
+
+void Yaw_Pitch_Set_Command(float yaw, float pitch);

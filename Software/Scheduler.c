@@ -6,13 +6,15 @@ struct Scheduler_typedef Motor= {7}; // 极对数：7
 uint8_t task_num;
 Scheduler_Task Scheduler_task_list[] =
 {
-  //{test_message_TX, &Debug_Data.measure_us_data, 100 * 1e3, 0},
-  {Debug_UART_Print, NULL, 30 * 1e3, 0},
+  {JC2804_pull_data, &Debug_Data.measure_us_data, 100 * 1e3, 0},
+  {test_PID, NULL, 1500 * 1e3, 0},
+  {Debug_UART_Print, NULL, 300 * 1e3, 0},
 };
 
 void Scheduler_Init(){
     task_num = sizeof(Scheduler_task_list) / sizeof(Scheduler_Task); // 数组大小 / 数组成员大小 = 数组元素个数
     Debug_Init();
+    JC2804_Init();
 }
 
 void Scheduler_Start(){

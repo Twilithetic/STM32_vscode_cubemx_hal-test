@@ -1,5 +1,5 @@
 #include "Debug_proc.h" 
- 
+char another_str[128] = "othrtstr"; 
 void Mode_Command(uint8_t mode_int){
     switch (mode_int){
         case 1:
@@ -26,6 +26,12 @@ void Period_Set_Command(uint8_t task_id, uint32_t period_us){
     // 修改周期
     Scheduler_task_list[task_id].period_us = period_us;
     Build_in_UART_Printf("成功：任务%d的周期已设置为 %lu 微秒\n", task_id, period_us);
+}
+
+void Yaw_Pitch_Set_Command(float yaw, float pitch){
+    JC2804_Data_list[0].angle = yaw;
+    JC2804_Data_list[1].angle = pitch;
+    sprintf(another_str, "设置姿态yaw %.2f, pitch %.2f", yaw, pitch); // 自动在末尾加`\0`
 }
  
  

@@ -13,11 +13,12 @@ void Debug_Init(){
 /// @brief 发送FOC_debug_us_data的数据
 void Debug_UART_Print(){  
     Build_in_UART_Printf(
-        "\r%d,%lu,%d,%lu,%d,%lu,%d,%lu\n", 
+        "\r%d,%lu,%d,%lu,%d,%lu,%d,%lu,%s\n", 
         Debug_Data.measure_us_data.us, Debug_Data.measure_us_data.period_us, 
         Debug_Data.PID_curr_to_vlot_us_data.us, Debug_Data.PID_curr_to_vlot_us_data.period_us,
         Debug_Data.PID_rad_to_speed_us_data.us, Debug_Data.PID_rad_to_speed_us_data.period_us,
-        Debug_Data.PID_speed_to_curr_us_data.us, Debug_Data.PID_speed_to_curr_us_data.period_us
+        Debug_Data.PID_speed_to_curr_us_data.us, Debug_Data.PID_speed_to_curr_us_data.period_us,
+        another_str
     );
 }
 
@@ -95,11 +96,28 @@ void Debug_UART_Receive_proc(UART_HandleTypeDef *huart, uint16_t Size){
             // 修改对应任务的周期
             Period_Set_Command(task_id, period);
         }
+    } else if (strncmp(cmd_str, "yaw ", 4) == 0){
+        // 解析 "yaw X, pitch Y" 格式
+        char *yaw_str = cmd_str + 4;
+        char *pitch_str = strstr(yaw_str, ", pitch ");
+        
+        if (pitch_str != NULL) {
+            *pitch_str = '\0';  // 截断yaw值
+            pitch_str += 8;     // 跳过", pitch "
+            
+            // 转换为浮点数
+            float yaw = atof(yaw_str);
+            float pitch = atof(pitch_str);
+            
+            // 执行角度设置命令
+            Yaw_Pitch_Set_Command(yaw, pitch);  // 调用设置角度的函数
+        }
     } else {
         // 3.3 未知指令
         Unknown_Command();
     }
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)UART1_RX_buffer, sizeof(UART1_RX_buffer));
-    
 
+
+    // 开始下一个
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)UART1_RX_buffer, sizeof(UART1_RX_buffer));
 }
